@@ -138,6 +138,7 @@ DEPENDENCIES
   act_as_admin!
   nokogiri (>= 1.5.0)
   quiet_assets
+  rake
   rspec-rails (~> 2.11.3)
   simplecov
   simplecov-rcov
