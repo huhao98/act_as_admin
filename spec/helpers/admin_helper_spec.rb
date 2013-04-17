@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe AdminHelper do
 
-  describe "action_dropdown" do
+  pending "action_dropdown" do
 
     it "should render a button given there a single action" do
       actions = {:action1 => {:url=>"path_to_action1"}}

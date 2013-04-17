@@ -1,12 +1,12 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "admin/version"
+require "act_as_admin/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "act_as_admin"
-  s.version     = Admin::VERSION
+  s.version     = ActAsAdmin::VERSION
   s.authors     = ["Brainet"]
   s.email       = ["huhao98@gmail.com"]
   s.homepage    = "http://brainet.github.com"
@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'quiet_assets'
   s.add_development_dependency 'rspec-rails', '~> 2.11.3'
+  
 end

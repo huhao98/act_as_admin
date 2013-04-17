@@ -1,10 +1,11 @@
-require "admin/engine"
-
-module Admin
-  autoload :ActAsAdmin, 'admin/act_as_admin'
-  autoload :ViewResolver, 'admin/view_resolver'
+module ActAsAdmin
+  autoload :NavConfig, 'act_as_admin/nav_config'
+  autoload :Controller, 'act_as_admin/controller'
+  autoload :ViewResolver, 'act_as_admin/view_resolver'
   module Helpers
-    autoload :PathHelper, 'admin/helpers/path_helper'
-    autoload :NavHelper, 'admin/helpers/nav_helper'
+    autoload :PathHelper, 'act_as_admin/helpers/path_helper'
+    autoload :NavHelper, 'act_as_admin/helpers/nav_helper'
   end
 end
+
+require "act_as_admin/engine"

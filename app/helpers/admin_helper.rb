@@ -1,8 +1,6 @@
-#encoding : utf-8
-
 module AdminHelper
-  include Admin::Helpers::PathHelper
-  include Admin::Helpers::NavHelper
+  include ActAsAdmin::Helpers::PathHelper  
+  include ActAsAdmin::Helpers::NavHelper
 
   def page_header headers
     major = headers[:major]
@@ -28,8 +26,7 @@ module AdminHelper
     else
       return data.send(field.to_sym)
     end
-  end
-  
+  end  
 
   def action_name key
     model_name = model_name(@model)
