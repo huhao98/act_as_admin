@@ -98,7 +98,7 @@ module AdminHelper
   def scope_button scope
     url = scope_url scope[0]
     cls = "btn"
-    cls +=" active" if @applied_scope && @applied_scope.to_sym == scope[0]
+    cls +=" active" if @applied_scope && @applied_scope.to_sym == scope[0].to_sym
     link_to(human_attribute_value(@model, :scope, scope[0].to_s), url, :class=>cls )
   end
 

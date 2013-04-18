@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency "rails", "~> 3.2.3"
-  s.add_dependency 'twitter-bootstrap-rails', '= 2.2.0'
-  s.add_dependency 'will_paginate-bootstrap', '= 0.2.2'
+  s.add_dependency 'twitter-bootstrap-rails', '~> 2.1'
+  s.add_dependency 'will_paginate-bootstrap', '~> 0.2'
   s.add_dependency "mongoid", ">= 2.5.1"
   s.add_dependency 'bson_ext', "1.7.0"
 

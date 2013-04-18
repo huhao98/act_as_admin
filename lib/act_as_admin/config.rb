@@ -38,7 +38,7 @@ module ActAsAdmin
 
       #exclude actions and data_actions from default
       page.actions.except!(*(opts.delete(:exclude_actions) || []))
-      page.data_actions.except!(*(opts.delete(:exclude_data_action) || []))
+      page.data_actions.except!(*(opts.delete(:exclude_data_actions) || []))
 
       yield(page) if block_given?
       @page_action = nil
@@ -57,19 +57,19 @@ module ActAsAdmin
     end
 
     def index_page opts={}, &block
-      page :action=>:index, &block
+      page ({:action=>:index}).merge(opts), &block
     end
 
     def show_page opts={}, &block
-      page :action=>:show, &block
+      page ({:action=>:show}).merge(opts), &block
     end
 
     def new_page opts={}, &block
-      page :action=>:new, &block
+      page ({:action=>:new}).merge(opts), &block
     end
 
     def edit_page opts={}, &block
-      page :action=>:edit, &block
+      page ({:action=>:edit}).merge(opts), &block
     end
 
   end

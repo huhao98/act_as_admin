@@ -5,8 +5,8 @@ PATH
       bson_ext (= 1.7.0)
       mongoid (>= 2.5.1)
       rails (~> 3.2.3)
-      twitter-bootstrap-rails (= 2.2.0)
-      will_paginate-bootstrap (= 0.2.2)
+      twitter-bootstrap-rails (~> 2.1)
+      will_paginate-bootstrap (~> 0.2)
 
 GEM
   remote: http://ruby.taobao.org/

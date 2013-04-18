@@ -12,7 +12,8 @@ module ActAsAdmin::Controller
       #{:s=>:active}
       default_scope = query.default_scope || []
       applied_scope = params[:s] || default_scope[0]
-      condition = (query.scopes[applied_scope.to_sym] || {})[:condition] if applied_scope
+      scopes=query.scopes.symbolize_keys
+      condition = (scopes[applied_scope.to_sym] || {})[:condition] if applied_scope
       if condition.present?
         criteria = condition.call(criteria)
         @applied_scope = applied_scope.to_sym

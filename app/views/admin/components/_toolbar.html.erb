@@ -1,6 +1,6 @@
 <div class="toolbar">
   <div class="pull-left">
-    <% unless hide_filter || false %>
+    <% if tools %>
       <% if query.scopes.present? %>
         <!-- Scopes -->
         <div class="btn-group">
@@ -17,7 +17,9 @@
     <% end %>
   </div>
 
+  <% if paging %>
   <div class="pull-right">
     <%= will_paginate(data, :renderer => BootstrapPagination::Rails) %>
   </div>
+  <% end %>
 </div>

@@ -19,13 +19,6 @@ module ActAsAdmin
         include ::ActAsAdmin::Controller::Base
         include ::ActAsAdmin::Controller::Query
         
-        nav = opts.delete(:nav)
-        ::ActAsAdmin::Helpers::NavHelper.append({
-          :model=>model_class, 
-          :group=>opts.delete(:group), 
-          :i=>nav
-        }.reject{|k,v| v.nil?}) if nav.present?
-
         append_view_path ActAsAdmin::ViewResolver.new("admin")
 
         @admin_config = ActAsAdmin::Config.new opts
