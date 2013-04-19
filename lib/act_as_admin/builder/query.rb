@@ -3,8 +3,9 @@ module ActAsAdmin::Builder
     include ::ActAsAdmin::Builder::Dsl
     attr_reader :path_proc, :per_page, :opts
 
-    field :scopes, :key=> :field, :proc => :condition
-    field :orders, :key=> :field
+    field :scopes, :key => :field, :proc => :condition
+    field :orders, :key => :field
+    field :searches, :key => :field, :proc => :condition
 
     def initialize opts={}
       @opts = opts

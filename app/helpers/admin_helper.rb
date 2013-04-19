@@ -1,3 +1,4 @@
+#encoding: utf-8
 module AdminHelper
   include ActAsAdmin::Helpers::PathHelper  
   include ActAsAdmin::Helpers::NavHelper
@@ -102,8 +103,15 @@ module AdminHelper
     link_to(human_attribute_value(@model, :scope, scope[0].to_s), url, :class=>cls )
   end
 
+  def search_box
+    content_tag(:div, :class=>"input-append"){
+      concat text_field_tag(:search, "", :class=>"span2" )
+      concat content_tag(:button, "搜索", :class=>'btn search-btn')
+    }
+  end
+
   def query_params
-    params.select{|k,v| [:s, :o].include? k.to_sym}.symbolize_keys
+    params.select{|k,v| [:s, :o, :q].include? k.to_sym}.symbolize_keys
   end
 
   def scope_url scope

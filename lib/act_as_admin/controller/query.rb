@@ -9,13 +9,22 @@ module ActAsAdmin::Controller
         criteria = opts[:from]
       end
       
-      #{:s=>:active}
+      # {:s=>:active}
       default_scope = query.default_scope || []
       applied_scope = params[:s] || default_scope[0]
       condition = (query.scopes[applied_scope.to_sym] || {})[:condition] if applied_scope
       if condition.present?
         criteria = condition.call(criteria)
         @applied_scope = applied_scope.to_sym
+      end
+
+      #{:q=>:keywords}
+      search_keywords = params[:q]
+      applied_search = query.searches.keys[0]
+      condition = (query.searches[applied_search.to_sym] || {})[:condition] if search_keywords
+      if condition.present?
+        criteria = condition.call(criteria, search_keywords)
+        @applied_search = applied_search
       end
 
       #{:o=>{:created_at,"asc"}}

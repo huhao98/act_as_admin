@@ -14,10 +14,15 @@
           <%query.orders.each{|order| concat order_button(order)}%>
         </div>
       <% end %>
-    <% end %>
-  </div>
 
-  <div class="pull-right">
-    <%= will_paginate(data, :renderer => BootstrapPagination::Rails) %>
-  </div>
+      <% if query.searches.present? %>
+        <!-- Keywords -->
+        <div class="btn-group">
+          <%= search_box %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>  
 </div>
+
+
