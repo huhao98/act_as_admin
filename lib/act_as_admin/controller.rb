@@ -18,8 +18,10 @@ module ActAsAdmin
         include ::ActAsAdmin::Helpers::PathHelper
         include ::ActAsAdmin::Controller::Base
         include ::ActAsAdmin::Controller::Query
-        
-        append_view_path ActAsAdmin::ViewResolver.new("admin")
+
+        pattern = "admin/:action{.:locale,}{.:formats,}{.:handlers,}"
+        append_view_path ::ActionView::FileSystemResolver.new("app/views", pattern)
+        append_view_path ::ActionView::FileSystemResolver.new(File.expand_path("../../../app/views", __FILE__), pattern)
 
         @admin_config = ActAsAdmin::Config.new opts
         config_defaults(@admin_config, model_class)
