@@ -3,11 +3,7 @@ module ActAsAdmin::Controller
   module Query
 
     def query_by query, opts={}
-      if query.on
-        criteria = self.instance_exec(&query.on)
-      else
-        criteria = opts[:from]
-      end
+      criteria = opts[:from]
       
       #{:s=>:active}
       default_scope = query.default_scope || []

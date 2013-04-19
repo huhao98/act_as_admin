@@ -2,22 +2,28 @@ require 'act_as_admin/builder/dsl'
 require 'act_as_admin/builder/page'
 require 'act_as_admin/builder/form'
 require 'act_as_admin/builder/query'
+require 'act_as_admin/builder/resource'
 
 module ActAsAdmin
   class Config
-    include ::ActAsAdmin::Builder::Dsl
 
-    attr_reader :pages, :forms, :queries, :controller, :opts
-    field :parents, :inherit=>false, :key=> true
+    attr_reader :pages, :forms, :queries, :resource, :opts
+    
     delegate :header, :data_column, :to=>:default_page
     delegate :query_on, :query_path, :scope, :order, :to=>:default_query
+    delegate :query_from, :parent, :resource_attr, :to=>:resource
 
     def initialize opts={}
       @opts = opts
+      @resource = ActAsAdmin::Builder::Resource.new
       default_form = ::ActAsAdmin::Builder::Form.new
       @pages = {:default => ::ActAsAdmin::Builder::Page.new}
       @forms = {:new =>default_form, :edit=>default_form}
       @queries = {:index => ::ActAsAdmin::Builder::Query.new}
+    end
+
+    def model
+      opts[:model]
     end
 
     def default_page

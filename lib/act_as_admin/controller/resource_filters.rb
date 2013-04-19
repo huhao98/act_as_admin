@@ -11,9 +11,8 @@ module ActAsAdmin::Controller
     end
 
     def find_parents
-      admin_config = self.class.admin_config
       parents = Hash.new
-      admin_config.parents.reduce(parents) do |memo, pair|                
+      @context.resource.parents.reduce(parents) do |memo, pair|                
         model_key = pair[0]
         parent = memo.keys.last
 
@@ -25,16 +24,15 @@ module ActAsAdmin::Controller
         memo
       end
 
-      @parents = parents
+      @context.parents = parents
     end        
 
     def new_resource     
-      @resource = @model.new(params[singular_name.to_sym])
-      parent = @parents.keys.last
+      parent = @context.parents.keys.last
+      model = @context.model
 
-      if (parent)
-        @resource.send("#{parent_field}=", parent)
-      end
+      @resource = model.new(params[singular_name.to_sym])
+      @resource.send("#{parent_field}=", parent) if (parent)
     end
 
     def find_resource
@@ -42,15 +40,18 @@ module ActAsAdmin::Controller
     end
 
     def find_resources
-      return unless @query
-      @resources = query_by(@query, :from => query_root)
-      instance_variable = @query.as
+      query = @context.query
+
+      return unless query
+      @resources = query_by(query, :from => query_root)
+      instance_variable = query.as
       self.instance_variable_set("@#{instance_variable}", @resources) if instance_variable
     end
 
     def breadcrumbs
       parents=[]
-      @parents.each_pair do |parent, opts|        
+
+      @context.parents.each_pair do |parent, opts|        
         title_field = opts[:title_field] || :name || :title || :to_s
         parent_name = model_name(parent.class)
         add_breadcrumb parent.class.model_name.human, to_resource_path({:resource=>parent_name.pluralize}, parents)
@@ -58,7 +59,7 @@ module ActAsAdmin::Controller
         parents << parent
       end
 
-      @page.breadcrumbs.each_pair do |name, opts|
+      @context.page.breadcrumbs.each_pair do |name, opts|
         path = self.instance_exec(&opts[:path]) if opts[:path]
         title = self.instance_exec(&name) if (name.is_a?(Proc))
         add_breadcrumb title || name, path
@@ -68,10 +69,13 @@ module ActAsAdmin::Controller
 
     private 
     def query_root
-      return @model.all unless @parents.present?
+      model = @context.model
+      parents = @context.parents
 
-      parent = @parents.keys.last
-      children_collection = @parents[parent][:on] || plural_name
+      return model.all unless parents.present?
+
+      parent = parents.keys.last
+      children_collection = parents[parent][:on] || plural_name
       parent.send(children_collection.to_sym)
     end
 

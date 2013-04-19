@@ -14,11 +14,6 @@ module ActAsAdmin::Builder
       return opts[:as]
     end
 
-    # Set root criteria that should be executed in the controller context
-    def on
-      return opts[:on]
-    end
-
     # Set path helper that should be executed in a context which have path helper
     def query_path &block
       @path_proc = block

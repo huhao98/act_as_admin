@@ -21,7 +21,7 @@ module ActAsAdmin
         
         append_view_path ActAsAdmin::ViewResolver.new("admin")
 
-        @admin_config = ActAsAdmin::Config.new opts
+        @admin_config = ActAsAdmin::Config.new opts.merge(:model=>model_class)
         config_defaults(@admin_config, model_class)
         @admin_config.instance_exec(&block) if block_given?
 
@@ -31,8 +31,10 @@ module ActAsAdmin
 
       private
 
-      def config_defaults admin_config, model_class
+      def config_defaults admin_config
+        model_class = admin_config.model
         title_field = admin_config.opts[:title_field] || :to_s
+
         resource_name = ->{@resource.send title_field}
 
         admin_config.instance_eval do
@@ -86,11 +88,7 @@ module ActAsAdmin
         before_filter :initialize_data
         define_method :initialize_data do
           action = params[:action].to_sym
-         
-          @model = model_class
-          @page = admin_config.pages[action] || admin_config.default_page
-          @query = admin_config.queries[action]
-          @form = admin_config.forms[action]
+          @context = ::ActAsAdmin::Controller::Context.new admin_config
         end        
         include ::ActAsAdmin::Controller::ResourceFilters
       end
