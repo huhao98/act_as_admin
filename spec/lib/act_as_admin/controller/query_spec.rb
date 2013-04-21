@@ -97,6 +97,39 @@ describe ActAsAdmin::Controller::Query do
       end
     end
 
+    context "search" do
+      it "should query a attribute :username by request parameter" do
+        query.search(:keywords){|c, q| c.any_of(:username => q)}
+        controller.stub!(:params => {:q => :nongren})
+
+        criteria.should_receive(:any_of).with(:username => :nongren).and_return(criteria)
+
+        controller.query_by query, :from => criteria
+        controller.instance_variable_get("@applied_search").should == :keywords
+      end
+
+      it "should query multiple attributes [:username, :email] by request parameter" do
+        query.search(:keywords){|c, q| c.any_of(:username => q).any_of(:email => q)}
+        controller.stub!(:params => {:q => :nongren})
+
+        criteria.should_receive(:any_of).with(:username => :nongren).and_return(criteria)
+        criteria.should_receive(:any_of).with(:email => :nongren).and_return(criteria)
+
+        controller.query_by query, :from => criteria
+        controller.instance_variable_get("@applied_search").should == :keywords
+      end
+
+      it "should not query attribute given no request parameter" do
+        query.search(:username){|c, q| c.any_of(:username => q)}
+        controller.stub!(:params => {})
+
+        criteria.should_not_receive(:any_of)
+
+        controller.query_by query, :from => criteria
+        controller.instance_variable_get("@applied_search").should be_nil
+      end
+    end
+
   end
 
 end

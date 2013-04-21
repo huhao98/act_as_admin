@@ -9,15 +9,10 @@ module ActAsAdmin::Controller
         criteria = opts[:from]
       end
       
-      #{:s=>:active}
       default_scope = query.default_scope || []
-      applied_scope = params[:s] || default_scope[0]
-      scopes=query.scopes.symbolize_keys
-      condition = (scopes[applied_scope.to_sym] || {})[:condition] if applied_scope
-      if condition.present?
-        criteria = condition.call(criteria)
-        @applied_scope = applied_scope.to_sym
-      end
+
+      criteria = query_scope_or_keyword query, criteria, "scope", params[:s] || default_scope[0]
+      criteria = query_scope_or_keyword query, criteria, "search", params[:q]
 
       #{:o=>{:created_at,"asc"}}
       default_order = query.default_order
@@ -35,6 +30,18 @@ module ActAsAdmin::Controller
       per_page = query.per_page || 10
 
       criteria.paginate(:page=> params[:page], :per_page=>per_page)
+    end
+
+    def query_scope_or_keyword query, criteria, action, params
+      act = query.send(action.pluralize).symbolize_keys
+      key = action == "scope" ? params : query.searches.keys[0]
+      
+      condition = (act[key.to_sym] || {})[:condition] if params
+      if condition.present?
+        criteria = action == "scope" ? condition.call(criteria) : condition.call(criteria, params)
+        self.instance_variable_set(:"@applied_#{action}", key.to_sym)
+      end
+      criteria
     end
 
   end
