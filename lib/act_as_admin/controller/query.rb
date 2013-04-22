@@ -9,10 +9,24 @@ module ActAsAdmin::Controller
         criteria = opts[:from]
       end
       
+      #TODO::Refactor scope & search
+      # {:s=>:active}
       default_scope = query.default_scope || []
+      applied_scope = params[:s] || default_scope[0]
+      condition = (query.scopes[applied_scope.to_sym] || {})[:condition] if applied_scope
+      if condition.present?
+        criteria = condition.call(criteria)
+        @applied_scope = applied_scope.to_sym
+      end
 
-      criteria = query_scope_or_keyword query, criteria, "scope", params[:s] || default_scope[0]
-      criteria = query_scope_or_keyword query, criteria, "search", params[:q]
+      #{:q=>:keywords}
+      search_keywords = params[:q]
+      applied_search = query.searches.keys[0]
+      condition = (query.searches[applied_search.to_sym] || {})[:condition] if search_keywords
+      if condition.present?
+        criteria = condition.call(criteria, search_keywords)
+        @applied_search = applied_search
+      end
 
       #{:o=>{:created_at,"asc"}}
       default_order = query.default_order
@@ -31,19 +45,5 @@ module ActAsAdmin::Controller
 
       criteria.paginate(:page=> params[:page], :per_page=>per_page)
     end
-
-    def query_scope_or_keyword query, criteria, action, params
-      act = query.send(action.pluralize).symbolize_keys
-      key = action == "scope" ? params : query.searches.keys[0]
-      
-      condition = (act[key.to_sym] || {})[:condition] if params
-      if condition.present?
-        criteria = action == "scope" ? condition.call(criteria) : condition.call(criteria, params)
-        self.instance_variable_set(:"@applied_#{action}", key.to_sym)
-      end
-      criteria
-    end
-
   end
-  
 end
