@@ -1,11 +1,16 @@
+Dir[File.join(File.dirname(__FILE__),"locales/*.yml")].each do |yml|
+  I18n.load_path << yml
+end
+
 module ActAsAdmin
-  autoload :NavConfig, 'act_as_admin/nav_config'
   autoload :Controller, 'act_as_admin/controller'
-  autoload :ViewResolver, 'act_as_admin/view_resolver'
   autoload :Config, 'act_as_admin/config'
   module Helpers
     autoload :PathHelper, 'act_as_admin/helpers/path_helper'
-    autoload :NavHelper, 'act_as_admin/helpers/nav_helper'
+    autoload :NavConfig, 'act_as_admin/helpers/nav_config'
+  end
+  module Controller
+    autoload :MongoQuery, 'act_as_admin/controller/mongo_query'
   end
 end
 

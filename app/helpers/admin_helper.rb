@@ -1,132 +1,82 @@
 module AdminHelper
   include ActAsAdmin::Helpers::PathHelper  
-  include ActAsAdmin::Helpers::NavHelper
+
+  def field_name field
+    @context.model.human_attribute_name(field)
+  end
+
+  def field_value data, field, opts
+    return self.instance_exec(data, &opts[:content]) if opts[:content].is_a? Proc
+    return data.send(field.to_sym)
+  end
+
+  def field_value_human field, value, model = nil
+    scope = model.nil? ? "values" :  model.i18n_scope 
+    t(:"#{scope}.#{field}.#{value}", :default=>value)
+  end
 
   def page_header headers
     major = headers[:major]
     minor = headers[:minor]
-
     content_tag(:h2) do
-      concat(resolve_proc_option_in_view(major[:text])) if major
+      concat(resolve(major[:text])) if major
       if minor
         concat(" ")
-        concat(content_tag :small, resolve_proc_option_in_view(minor[:text]))
+        concat(content_tag :small, resolve(minor[:text]))
       end
     end
   end
 
-
-  def field_name field
-    @model.human_attribute_name(field)
-  end
-
-  def field_value data, field, field_options
-    if field_options[:content] 
-      return self.instance_exec(data, &field_options[:content])
-    else
-      return data.send(field.to_sym)
+  def action_group actions, opts={}
+    data = opts.delete(:data_item)
+    content_tag(:div, :class=>"btn-group") do
+      actions.each{|k, v| concat action_link(k, v.merge(opts), data)}
     end
-  end  
-
-  def action_name key
-    model_name = model_name(@model)
-    I18n.translate("helpers.links.#{model_name}.#{key}", :default=>t("helpers.links.#{key}", :default=>key.to_s))
-  end
-
-  def action_icon key
-    model_name = model_name(@model)
-    t("helpers.links.#{model_name}.#{key}_icon", :default=>t("helpers.links.#{key}_icon", :default=>""))
   end
 
   def action_dropdown actions, opts={}
-    return unless actions.present?
+    return unless actions.size > 0
+    data = opts.delete(:data_item)
+    actions = actions.to_a
+    first = actions.slice(0)
+    reset = actions.slice(1..actions.size-1)
 
-    links = actions.collect do |k, v|
-      options = v.merge(opts)
-      
-      link = {}
-      link[:name] = action_name(k)
-      link[:icon_class] = action_icon(k)
-
-      link[:url] = resolve_proc_option_in_view(options.delete(:url), options.delete(:data_item)) || "#"
-      link[:options] = options
-      link
-    end
-    
-    link = links.shift
-    main_btn = action_link(link)
-    return main_btn unless links.size > 0
+    main_btn = action_link *[first[0], first[1].merge(opts), data].compact
+    return main_btn unless reset.size > 0
 
     content_tag(:div, :class=>"btn-group") do
       concat main_btn
       concat content_tag(:button, content_tag(:span, "", :class=>"caret"), :class=>"btn dropdown-toggle", :"data-toggle"=>"dropdown")
       concat(content_tag(:ul, :class=>"dropdown-menu"){
-        links.each do |link|
-          link[:options].delete(:class)
-          concat content_tag(:li, action_link(link))
-        end
+        reset.each{|item| concat content_tag(:li, action_link(item[0], item[1].except(:class), data))}
       })
     end
   end
 
-  def action_link link
-    content = []
-    content << content_tag(:i,"", :class=>link[:icon_class]) if link[:icon_class].present?
-    content << link[:name]
-    link_to(content.join(" ").html_safe, link[:url], link[:options])
-  end
-
-  def order_button order
-    field = order[0]
-    default_dir = order[1][:dir].to_s
-    applied_orders = @applied_orders || {}
-    applied_dir = {"desc"=>"asc", "asc"=>"desc"}[applied_orders[field]] if (applied_orders.keys.include? field)
-
-    url = order_url(field, applied_dir, default_dir)
-    icon = {
-      "desc" => "<i class='icon-sort-up gray'></i>",
-      "asc" => "<i class='icon-sort-down gray'></i>",
-      "none" => "<i class='icon-sort gray'></i>"
-    }[applied_dir || "none"]
-
-    cls = "btn"
-    cls +=" active" if applied_dir.present?
-
-    link_to("#{@model.human_attribute_name(field)} #{icon}".html_safe, url, :class=>cls)
-  end
-
-  def scope_button scope
-    url = scope_url scope[0]
-    cls = "btn"
-    cls +=" active" if @applied_scope && @applied_scope.to_sym == scope[0].to_sym
-    link_to(human_attribute_value(@model, :scope, scope[0].to_s), url, :class=>cls )
-  end
-
-  def query_params
-    params.select{|k,v| [:s, :o].include? k.to_sym}.symbolize_keys
-  end
-
-  def scope_url scope
-    p = query_params
-    p[:s] = scope
-    return self.instance_exec(p, &@query.path_proc)
-  end
-
-  def order_url field, applied_dir, default_dir
-    dir = applied_dir || default_dir || "asc"
-    p = query_params
-    p[:o] = {field => dir}
-    return self.instance_exec(p, &@query.path_proc)
-  end
-
+  
   private 
-  def resolve_proc_option_in_view proc_or_string, *args
-    value = proc_or_string
-    if value.is_a? Proc
-      return self.instance_exec(args, &value) 
-    else
-      return value
-    end
+
+  def action_name key
+    I18n.translate("helpers.links.#{@context.resource_name}.#{key}", :default=>t("helpers.links.#{key}", :default=>key.to_s))
+  end
+
+  def action_icon key
+    t("helpers.links.#{@context.resource_name}.#{key}_icon", :default=>t("helpers.links.#{key}_icon", :default=>""))
+  end
+
+  def action_link key, opts, data=nil
+    name = action_name(key)
+    icon = action_icon(key)
+    url = resolve(opts.delete(:url), data) || "#"
+
+    content = [name]
+    content.unshift(content_tag :i,"", :class=>icon) unless icon.nil?
+    link_to(content.join(" ").html_safe, url, opts)
+  end
+
+  def resolve value, *args
+    return self.instance_exec(args, &value) if value.is_a? Proc
+    return value
   end
 
 end

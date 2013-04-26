@@ -1,33 +1,31 @@
 require "spec_helper"
 
-
 describe ActAsAdmin::Builder::Dsl do
-
   before :each do
-    class Dummy
+    class DummyDsl
       include ActAsAdmin::Builder::Dsl
     end
   end
 
   after :each do
-    Object.send(:remove_const, :Dummy)
+    Object.send(:remove_const, :DummyDsl)
   end
 
   describe "field" do
     context "without key" do
       it "should return empty Array given no values is appended" do
-        Dummy.field :names
+        DummyDsl.field :names
 
-        test = Dummy.new
+        test = DummyDsl.new
 
         test.names.should be_an(Array)
         test.names.should be_empty
       end
 
       it "should store values in an Array" do
-        Dummy.field :names
-        parent = Dummy.new
-        test = Dummy.new(parent)
+        DummyDsl.field :names
+        parent = DummyDsl.new
+        test = DummyDsl.new(parent)
 
         parent.name "a"
         test.name "b"
@@ -37,10 +35,10 @@ describe ActAsAdmin::Builder::Dsl do
       end
 
       it "should inhert values from parent given inhert option is true" do
-        Dummy.field :names, :inherit=>true
+        DummyDsl.field :names, :inherit=>true
 
-        parent = Dummy.new
-        test = Dummy.new(parent)
+        parent = DummyDsl.new
+        test = DummyDsl.new(parent)
 
         parent.name "a"
         test.name "b"
@@ -49,26 +47,26 @@ describe ActAsAdmin::Builder::Dsl do
       end
 
       it "should not define dsl write method given without_writer option is true" do
-        Dummy.field :names, :without_writer=>true
-        test = Dummy.new
+        DummyDsl.field :names, :without_writer=>true
+        test = DummyDsl.new
         test.respond_to?(:name).should be_false
       end
     end
 
     context "with key" do
       it "should return empty Hash given no value is appended" do
-        Dummy.field :names, :key=>true
+        DummyDsl.field :names, :key=>true
 
-        test = Dummy.new
+        test = DummyDsl.new
 
         test.names.should be_a(Hash)
         test.names.should be_empty
       end
 
       it "should store values in a Hash" do
-        Dummy.field :names, :key=>true
+        DummyDsl.field :names, :key=>true
 
-        test = Dummy.new
+        test = DummyDsl.new
         test.name :b, :editable=>true
 
         test.names.should be_a(Hash)
@@ -77,22 +75,22 @@ describe ActAsAdmin::Builder::Dsl do
       end
 
       it "should not inherit values from parent" do
-        Dummy.field :names, :key=>true
+        DummyDsl.field :names, :key=>true
 
-        parent = Dummy.new
+        parent = DummyDsl.new
         parent.name :a, :editable=>false
 
-        test = Dummy.new
+        test = DummyDsl.new
         test.name :b, :editable=>true
 
         test.names.keys.include?(:a).should be_false
       end
 
       it "should inhert values from parent given inherit option is true" do
-        Dummy.field :names, :key=>true, :inherit=>true
+        DummyDsl.field :names, :key=>true, :inherit=>true
 
-        parent = Dummy.new
-        test = Dummy.new(parent)
+        parent = DummyDsl.new
+        test = DummyDsl.new(parent)
 
         parent.name :a, :editable=>false
         test.name :b, :editable=>true
@@ -103,8 +101,8 @@ describe ActAsAdmin::Builder::Dsl do
       end
 
       it "should return option as an empty Hash given no option is set on the key" do
-        Dummy.field :names, :key=>true, :proc=>:url
-        test = Dummy.new
+        DummyDsl.field :names, :key=>true, :proc=>:url
+        test = DummyDsl.new
 
         test.name(:a)
 
@@ -114,8 +112,8 @@ describe ActAsAdmin::Builder::Dsl do
       end
 
       it "should take a block parameter and store in the hash given proc option is given" do
-        Dummy.field :names, :key=>true, :proc=>:url
-        test = Dummy.new
+        DummyDsl.field :names, :key=>true, :proc=>:url
+        test = DummyDsl.new
 
         test.name(:a){|b|}
 

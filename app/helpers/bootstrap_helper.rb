@@ -13,7 +13,6 @@ module BootstrapHelper
     end
   end
 
-
   def bootstrap_form_fields form, model, &block
     BootstrapFormBuilder.render_items(form, model, self, &block)
   end
@@ -63,7 +62,7 @@ module BootstrapHelper
   #
   # menu:: The text on the menu
   def bootstrap_dropdown_menu menu, cls=nil
-    opts = {:class=>"dropdown #{cls}"}
+    opts = {:class=>["dropdown",cls].compact.join(" ")}
     content_tag(:li, opts) do
       concat link_to(%{#{menu} #{content_tag :b, "", :class=>"caret"}}.html_safe, "#", :class=>"dropdow-toggle", :"data-toggle"=>"dropdown")
       concat content_tag(:ul, :class=>"dropdown-menu"){yield}
@@ -82,6 +81,21 @@ module BootstrapHelper
       concat content_tag(:ul, :class=>"dropdown-menu"){yield if block_given?}
     end
   end
+
+
+  # Render a bootstrap button group
+  # data:: The data content in the button group. If it is an emuratable object, this method
+  # will yield the block with each item in the collection.
+  def bootstrap_btn_group data=nil, &block
+    content_tag(:div, :class=>"btn-group") do
+      if data.respond_to? :each
+        data.each(&block)
+      else
+        yield data
+      end
+    end
+  end
+
 
   # Render standard fav link icons for different devices.
   # It normally embeded in the <header>

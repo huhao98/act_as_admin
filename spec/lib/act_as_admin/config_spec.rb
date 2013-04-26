@@ -28,13 +28,12 @@ describe ActAsAdmin::Config do
       expect{|b| config.page &b}.to yield_with_args(config.default_page)
     end
 
-    it "should yeild a new page for action other than :default" do
-      config.page(:action=> :other) do |page|
-        page.should == config.pages[:other]
-      end
+    it "can yeild a new page for an action" do
+      expect{|b| config.page(:index, &b)}.to yield_with_args(ActAsAdmin::Builder::Page)
 
-      config.pages.size.should == 2
-      config.pages[:other].should be_a(ActAsAdmin::Builder::Page)
+      expect(config.pages.size).to eq(2)
+      expect(config.pages[:default]).to eq(config.default_page)
+      expect(config.pages[:index]).to be_a(ActAsAdmin::Builder::Page)
     end
 
   end
@@ -45,7 +44,7 @@ describe ActAsAdmin::Config do
     end
 
     it "should yield a new form for action other than :edit and :new" do
-      config.form(:action=> :other) do |form|
+      config.form :other do |form|
         form.should == config.forms[:other]
       end
 
@@ -54,7 +53,7 @@ describe ActAsAdmin::Config do
     end
 
     it "should yield a new form for action within the block of page with action" do
-      config.page :action=>:other do
+      config.page :other do
         expect{|b| config.form &b}.to yield_with_args(config.forms[:other])
       end
 
@@ -70,7 +69,7 @@ describe ActAsAdmin::Config do
     end
 
     it "should yield a new query for none index action" do
-      config.query :action=>:other do |query|
+      config.query :other do |query|
         query.should eq(config.queries[:other])
       end
 
@@ -80,7 +79,7 @@ describe ActAsAdmin::Config do
     end
 
     it "should yield a new query for action within the block of page with action" do
-      config.page :action=>:other do
+      config.page :other do
         expect{|b| config.query &b}.to yield_with_args(config.queries[:other])
       end
 
@@ -91,13 +90,13 @@ describe ActAsAdmin::Config do
 
   describe "resource" do
     it "should delegate :resource_attr to resource object" do
-      config.resource.should_receive(:resource_attr) do |key, opts, &block|
+      config.resource.should_receive(:field) do |key, opts, &block|
         expect(key).to eq(:user)
         expect(opts).to eq(:when=>:new)
         expect(block).to be_a(Proc)
       end
 
-      config.resource_attr(:user, :when=>:new){current_user}
+      config.field(:user, :when=>:new){current_user}
     end
 
     it "should delegate :query_from to resource object" do

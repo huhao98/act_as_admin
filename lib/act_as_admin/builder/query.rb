@@ -1,9 +1,8 @@
 module ActAsAdmin::Builder
   class Query
     include ::ActAsAdmin::Builder::Dsl
-    attr_reader :path_proc, :per_page, :opts
-
-    field :scopes, :key=> :field, :proc => :condition
+    attr_reader :path_proc, :per_page, :from, :opts 
+    field :filters, :key=> :field, :proc => :condition
     field :orders, :key=> :field
 
     def initialize opts={}
@@ -14,6 +13,10 @@ module ActAsAdmin::Builder
       return opts[:as]
     end
 
+    def query_from &from
+      @from = from
+    end
+
     # Set path helper that should be executed in a context which have path helper
     def query_path &block
       @path_proc = block
@@ -21,12 +24,7 @@ module ActAsAdmin::Builder
 
     def page per_page
       @per_page = per_page
-    end
-
-    def default_scope
-      default = scopes.select{|k,v| v[:default]}
-      return default.first unless default.empty?
-    end
+    end   
 
     def default_order
       default = orders.select{|k,v| v[:default]}

@@ -1,0 +1,13 @@
+zh_cn:
+  will_paginate:
+    page_gap: "..."
+    previous_label: "前一页"
+    next_label: "下一页"
+    total: "第 <b>%{from}</b> 到 <b>%{to}</b> 个结果， 共有 <b>%{total}</b> 个%{item}"
+
+  act_as_admin:
+    actions:
+      search: "搜索"
+      range: "范围查找"
+      clear: "清除"
+      all: "所有"

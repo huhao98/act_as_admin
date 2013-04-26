@@ -1,6 +1,6 @@
 <% content_for :main do %>
-<%= render :partial=>"/admin/components/attrs", :locals=>{:data=>@resource, :page=>@page}%>
-<%= render :partial=>@page.partial if @page.partial%>
+<%= render :partial=>"/admin/components/attrs", :locals=>{:data=>@resource, :page=>@context.page}%>
+<%= render :partial=>@context.page.partial if @context.page.partial%>
 <% end %>
 
 <%= render :file=> '/layouts/admin_page' %>

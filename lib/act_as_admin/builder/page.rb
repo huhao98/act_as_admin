@@ -8,8 +8,7 @@ module ActAsAdmin::Builder
 
     field :actions, :key=> true, :proc => :url
     field :data_actions, :key=> true, :proc => :url
-    field :breadcrumbs, :inherit=>true, :key=> true, :proc => :path
-
+    field :breadcrumbs, :inherit=>true, :key=> true, :proc => :link
   end
   
 end
