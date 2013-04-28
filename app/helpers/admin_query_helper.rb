@@ -2,22 +2,34 @@
 
 module AdminQueryHelper
 
-   def orders_group
+  def orders_group
     orders = query_result.query.orders
     return unless orders.present?
     bootstrap_btn_group(orders) do |field, opts|
-      default_dir = opts[:dir].to_s
-      applied_dir = applied_dir(field)
+      concat order_link(field, opts){|text, url, active| link_to(text, url, active_btn_option(active))}
+    end
+  end
 
-      name = field_name(field)
-      url = order_url(field, applied_dir, default_dir)
-      icon = {
-        "desc" => "<i class='icon-sort-up gray'></i>",
-        "asc" => "<i class='icon-sort-down gray'></i>",
-        "none" => "<i class='icon-sort gray'></i>"
-      }[applied_dir || "none"]
+  def order_link field, opts={}
+    default_dir = opts[:dir].to_s
+    applied_dir = applied_dir(field)
+    name = field_name(field)
+    url = order_url(field, applied_dir, default_dir)
+    icon = {
+      "desc" => "<i class='icon-sort-up gray'></i>",
+      "asc" => "<i class='icon-sort-down gray'></i>",
+      "none" => "<i class='icon-sort gray'></i>"
+    }[applied_dir || "none"]
 
-      concat link_to("#{name} #{icon}".html_safe, url, active_btn_option(applied_dir.present?))
+    yield("#{name} #{icon}".html_safe, url, applied_dir.present?)
+  end
+
+  def order_header field
+    orders = query_result.query.orders || {}
+    if orders.has_key?(field.to_sym)
+      order_link(field, orders[field]){|text, url, active| link_to(text, url)}      
+    else
+      field_name(field)
     end
   end
 
@@ -28,7 +40,7 @@ module AdminQueryHelper
     filters = query_result.query.filters.select do |field, opts|
       type = opts[:type] || :search
       types.include? type
-    end    
+    end
 
     filters.each do |field, opts|
       type = opts[:type]
@@ -41,7 +53,7 @@ module AdminQueryHelper
 
         concat(values_dropdown field, value, values) if type == :select
         concat(scope_buttons field, value, values) if type == :scope
-      else        
+      else
         concat(search_box field, applied_filter(field))
       end
     end
@@ -54,14 +66,14 @@ module AdminQueryHelper
     hv = field_value_human(field, value) unless value.nil?
     bootstrap_dropdown_button([field_name(field), hv].compact.join(" : ")) do
       concat(content_tag :li, link_to(t("act_as_admin.actions.all"), filter_url(field))) unless value.blank?
-      values.each{|v| 
+      values.each{|v|
         html_opts = {:class=>"active"} if (v.to_s == value.to_s)
         concat content_tag(:li, link_to(field_value_human(field, v), filter_url(field, v)), html_opts)
       }
     end
   end
 
-  def scope_buttons field, value, values  
+  def scope_buttons field, value, values
     bootstrap_btn_group(values) do |v|
       active =  (v == value)
       url = active ? filter_url(field) : filter_url(field, v)
@@ -69,27 +81,27 @@ module AdminQueryHelper
     end
   end
 
-  def search_box field, value    
-    params = filter_params field   
+  def search_box field, value
+    params = filter_params field
     form_tag(query_url, :method => :get, :class=>"form-search"){
       concat query_hidden_fields(:o, params)
       concat query_hidden_fields(:f, params)
       concat text_field_tag("f[#{field}]", value, :placeholder=>field_name(field), :class=>"input-medium search-query" )
       concat submit_tag(t("act_as_admin.actions.search"), :class=>"btn")
       concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
-    }   
+    }
   end
 
   def range_box field, value
     #value=[1] or value=[1,2] or value=nil
-    params = filter_params field   
-    value ||= []    
+    params = filter_params field
+    value ||= []
     form_tag(query_url, :method=>:get, :class=>"form-inline"){
       concat query_hidden_fields(:o, params)
       concat query_hidden_fields(:f, params)
-      concat text_field_tag("f[#{field}][]", value[0],:placeholder=>field_name(field), :class=>"input-mini")      
+      concat text_field_tag("f[#{field}][]", value[0],:placeholder=>field_name(field), :class=>"input-mini")
       concat content_tag(:span, "-")
-      concat text_field_tag("f[#{field}][]", value[1],:placeholder=>field_name(field), :class=>"input-mini")      
+      concat text_field_tag("f[#{field}][]", value[1],:placeholder=>field_name(field), :class=>"input-mini")
       concat submit_tag(t("act_as_admin.actions.range"), :class=>"btn")
       concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
     }
@@ -115,7 +127,7 @@ module AdminQueryHelper
   end
 
   def query_params
-    @query_result.query_params.clone
+    @query_result.query_params.merge(params.except(:f, :o))
   end
 
   def query_url params={}
@@ -132,7 +144,7 @@ module AdminQueryHelper
     end.flatten.join("\n").html_safe
   end
 
-  
+
 
   def filter_params field, value=nil
     p = query_params

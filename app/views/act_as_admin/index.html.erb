@@ -1,0 +1,7 @@
+<% content_for :main do %>
+  <%= render :partial=>"/act_as_admin/components/toolbar"%>
+  <%= render :partial=>"/act_as_admin/components/list", :locals=>{:data=>@resources, :page=>@context.page}%>
+  <%= render :partial=>"/act_as_admin/components/paging"%>
+<% end %>
+
+<%= render :file=> '/layouts/act_as_admin' %>

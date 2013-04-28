@@ -54,7 +54,7 @@ module ActAsAdmin::Controller
       @query_meta_data ||= {}
       query.filters.each do |field, opts|
         if [:select, :scope].include?(opts[:type]) && opts[:values].nil?
-          values = @from.distinct(field)
+          values = @from.distinct(field).compact
           @query_meta_data[field] ||= {}
           @query_meta_data[field].merge!(:values=>values)
         end

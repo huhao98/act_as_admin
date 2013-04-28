@@ -1,20 +1,22 @@
 <table class="table table-striped table-data">
   <thead>
     <tr>
-      <th class="actions"></th>
+     
       <% page.data_columns.each{|field, options| 
         concat(content_tag(:th, field_name(field))) unless options[:not_on_list] || false 
       }%>
+       <th class="actions"></th>
     </tr>
   </thead>
 
   <tbody>
     <% data.each do |list_item| %>
       <tr>
-        <td class="item-actions"><%= action_dropdown page.data_actions, :class=>"btn", :data_item=>list_item %></td>
+       
         <% page.data_columns.each{|field, options| 
           concat content_tag(:td, field_value(list_item, field, options)) unless options[:not_on_list] || false
         }%>
+         <td class="item-actions"><%= action_dropdown page.data_actions, :class=>"btn", :data_item=>list_item %></td>
       </tr>
     <% end %>
   </tbody>

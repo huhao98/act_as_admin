@@ -2,7 +2,8 @@ module AdminNavHelper
 
   def navbar opts={}
     bootstrap_navbar(opts) do
-      Rails.configuration.nav.nav_items.each do |key, opts|
+      nav_items = opts[:nav_items] || Rails.configuration.nav.nav_items
+      nav_items.each do |key, opts|
         if opts[:resources].nil?
           concat(nav_item key, opts)
         else
@@ -15,11 +16,19 @@ module AdminNavHelper
   private
 
   def nav_item key, cfg={}
+    if cfg[:with_role].present? && current_user && current_user.respond_to?(:roles)
+      return if (current_user.roles & cfg[:with_role]).blank?
+    end
+
     nav_on(key, cfg) do |url, active|
       opts = {:class=>:active} if active
-      yield(active) if block_given?
-      content_tag :li, link_to(key, url), opts
+      yield(active) if block_given?      
+      content_tag :li, link_to(nav_title(key), url), opts
     end
+  end
+
+  def nav_title key
+    key.to_s.singularize.classify.constantize.model_name.human rescue key.to_s.capitalize
   end
 
   def nav_group key, resources
@@ -32,8 +41,7 @@ module AdminNavHelper
   end
 
   def nav_on resource, cfg={}
-    opts = cfg.merge(:controller=>resource)
-
+    opts = {:controller=>resource}.merge(cfg)
     url = opts[:url]
     url = instance_exec(&url) if url.is_a?(Proc)
     url ||= url_for(opts.slice(:controller, :action, :id))

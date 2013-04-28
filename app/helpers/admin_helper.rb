@@ -11,6 +11,8 @@ module AdminHelper
   end
 
   def field_value_human field, value, model = nil
+    return if value.nil?
+    
     scope = model.nil? ? "values" :  model.i18n_scope 
     t(:"#{scope}.#{field}.#{value}", :default=>value)
   end
@@ -30,7 +32,7 @@ module AdminHelper
   def action_group actions, opts={}
     data = opts.delete(:data_item)
     content_tag(:div, :class=>"btn-group") do
-      actions.each{|k, v| concat action_link(k, v.merge(opts), data)}
+      actions.each{|k, v| concat action_link(k, opts.merge(v), data)}
     end
   end
 
@@ -65,17 +67,18 @@ module AdminHelper
   end
 
   def action_link key, opts, data=nil
+    url = resolve(opts.delete(:url), data)
+    return unless url
+    
     name = action_name(key)
     icon = action_icon(key)
-    url = resolve(opts.delete(:url), data) || "#"
-
     content = [name]
     content.unshift(content_tag :i,"", :class=>icon) unless icon.nil?
     link_to(content.join(" ").html_safe, url, opts)
   end
 
   def resolve value, *args
-    return self.instance_exec(args, &value) if value.is_a? Proc
+    return self.instance_exec(*args, &value) if value.is_a? Proc
     return value
   end
 

@@ -75,7 +75,7 @@ module BootstrapHelper
   # content:: The html content on the button
   # opts[:class]:: The dropdown button class, default is "btn"
   def bootstrap_dropdown_button content, opts={}
-    btn_class = opts.delete(:class) || "btn"
+    btn_class = (opts||{}).delete(:class) || "btn"
     content_tag(:div, :class=>"btn-group") do
       concat link_to(%{#{content} #{content_tag :span, "", :class=>"caret"}}.html_safe, "#", :class=>"#{btn_class} dropdown-toggle", :"data-toggle"=>"dropdown")
       concat content_tag(:ul, :class=>"dropdown-menu"){yield if block_given?}

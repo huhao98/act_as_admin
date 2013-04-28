@@ -21,7 +21,7 @@ module ActAsAdmin
         include ::ActAsAdmin::Controller::BreadCrumb
         include ::ActAsAdmin::Controller::Query
 
-        pattern = "admin/:action{.:locale,}{.:formats,}{.:handlers,}"
+        pattern = "act_as_admin/:action{.:locale,}{.:formats,}{.:handlers,}"
         append_view_path ::ActionView::FileSystemResolver.new("app/views", pattern)
         append_view_path ::ActionView::FileSystemResolver.new(File.expand_path("../../../app/views", __FILE__), pattern)
 
