@@ -2,22 +2,32 @@ require 'act_as_admin/builder/dsl'
 require 'act_as_admin/builder/page'
 require 'act_as_admin/builder/form'
 require 'act_as_admin/builder/query'
+require 'act_as_admin/builder/resource'
 
 module ActAsAdmin
   class Config
-    include ::ActAsAdmin::Builder::Dsl
 
-    attr_reader :pages, :forms, :queries, :controller, :opts
-    field :parents, :inherit=>false, :key=> true
+    attr_reader :pages, :forms, :queries, :resource, :opts
+    
     delegate :header, :data_column, :to=>:default_page
-    delegate :query_on, :query_path, :scope, :order, :to=>:default_query
+    delegate :query_on, :query_path, :filter, :order, :to=>:default_query
+    delegate :query_from, :parent, :field, :to=>:resource
 
     def initialize opts={}
       @opts = opts
+      @resource = ActAsAdmin::Builder::Resource.new
       default_form = ::ActAsAdmin::Builder::Form.new
       @pages = {:default => ::ActAsAdmin::Builder::Page.new}
-      @forms = {:new =>default_form, :edit=>default_form}
+      @forms = {:new =>default_form, :create=>default_form, :edit=>default_form, :update=>default_form}
       @queries = {:index => ::ActAsAdmin::Builder::Query.new}
+    end
+
+    def model
+      opts[:model]
+    end
+
+    def resource_name
+      opts[:resource_name]
     end
 
     def default_page
@@ -32,8 +42,8 @@ module ActAsAdmin
       @forms[:new]
     end
 
-    def page opts={}
-      @page_action = opts.delete(:action) || :default
+    def page action=nil, opts={}, &block
+      @page_action = action || :default
       page = @pages[@page_action] ||= ::ActAsAdmin::Builder::Page.new(default_page)
 
       #exclude actions and data_actions from default
@@ -44,32 +54,32 @@ module ActAsAdmin
       @page_action = nil
     end
 
-    def form opts={}
-      action = opts.delete(:action) || @page_action || :new
+    def form action=nil, opts={}
+      action = action || @page_action || :new
       @forms[action] ||= ::ActAsAdmin::Builder::Form.new
       yield(@forms[action]) if block_given?
     end
 
-    def query opts={}
-      action = opts.delete(:action) || @page_action || :index
+    def query action=nil, opts={}
+      action = action || @page_action || :index
       @queries[action] ||= ::ActAsAdmin::Builder::Query.new
       yield(@queries[action]) if block_given?
     end
 
     def index_page opts={}, &block
-      page ({:action=>:index}).merge(opts), &block
+      page :index, opts, &block
     end
 
     def show_page opts={}, &block
-      page ({:action=>:show}).merge(opts), &block
+      page :show, opts, &block
     end
 
     def new_page opts={}, &block
-      page ({:action=>:new}).merge(opts), &block
+      page :new, opts, &block
     end
 
     def edit_page opts={}, &block
-      page ({:action=>:edit}).merge(opts), &block
+      page :edit, opts, &block
     end
 
   end

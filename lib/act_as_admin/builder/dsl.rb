@@ -1,6 +1,5 @@
 module ActAsAdmin::Builder
   module Dsl
-
     extend ActiveSupport::Concern
 
     def initialize parent=nil

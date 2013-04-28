@@ -1,9 +1,9 @@
 <div class="page-header">
     <div class="pull-left">
-      <%= page_header(@page.headers) %>
+      <%= page_header(@context.page.headers) %>
     </div>
     <div class="pull-right">
-      <%= action_dropdown(@page.actions, :class=>"btn btn-success")%>
+      <%= action_group(@context.page.actions, :class=>"btn")%>
     </div>
 </div>
 

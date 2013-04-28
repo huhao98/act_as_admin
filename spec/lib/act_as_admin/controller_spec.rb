@@ -3,54 +3,35 @@ require "spec_helper"
 describe ActAsAdmin::Controller do
 
   before :each do
-    class DummyModel
-      extend ActiveModel::Naming
-    end
-
-    class ParentModel < DummyModel;end
-
     class DummyController
-      def self.append_view_path resolver
-      end
-
-      def self.before_filter name, opts={}
-      end
+      def self.append_view_path resolver;end
+      def self.before_filter name, opts={};end
       include ActAsAdmin::Controller
     end
   end
 
   after :each do
     Object.send(:remove_const, :DummyController)
-    Object.send(:remove_const, :DummyModel)
-    Object.send(:remove_const, :ParentModel)
   end
 
   describe "register" do
-    it "should append view path" do
-      DummyController.should_receive(:append_view_path).with(an_instance_of(ActAsAdmin::ViewResolver))
-
-      DummyController.register_model DummyModel
+    it "should append view paths" do
+      DummyController.should_receive(:append_view_path).twice
+      DummyController.register_model Dummy
     end
 
-    describe "filters" do     
+    describe "filters" do
       it "should define resource filters" do
-        DummyController.should_receive(:before_filter).with(:initialize_data).ordered
-        DummyController.should_receive(:before_filter).with(:find_parents).ordered
+        DummyController.should_receive(:before_filter).with(:init_context).ordered
         DummyController.should_receive(:before_filter).with(:new_resource, :only=>[:new, :create]).ordered
         DummyController.should_receive(:before_filter).with(:find_resource, :only=>[:show, :destroy, :edit, :update]).ordered
         DummyController.should_receive(:before_filter).with(:find_resources).ordered
         DummyController.should_receive(:before_filter).with(:breadcrumbs).ordered
 
-        
-
-        DummyController.register_model DummyModel do
-          parent ParentModel, :on=>:dummies
-        end
-
+        DummyController.register_model Dummy
         controller = DummyController.new
 
-        controller.should respond_to(:initialize_data)
-        controller.should respond_to(:find_parents)
+        controller.should respond_to(:init_context)
         controller.should respond_to(:new_resource)
         controller.should respond_to(:find_resource)
         controller.should respond_to(:find_resources)
@@ -60,7 +41,7 @@ describe ActAsAdmin::Controller do
 
     describe "default configuration" do
       before :each do
-        DummyController.register_model DummyModel
+        DummyController.register_model Dummy
       end
 
       it "should create default query for index page" do
@@ -69,7 +50,6 @@ describe ActAsAdmin::Controller do
         query.per_page.should == 10
         query.path_proc.should be_a(Proc)
         query.as.should be_nil
-        query.on.should be_nil
       end
 
       it "should create default form for new and edit action" do
@@ -129,6 +109,7 @@ describe ActAsAdmin::Controller do
         expect(edit_form.actions[:edit][:method]).to eq(:put)
       end
     end
+
 
   end
 end

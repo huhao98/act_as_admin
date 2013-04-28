@@ -8,14 +8,7 @@ module ActAsAdmin::Builder
 
     field :actions, :key=> true, :proc => :url
     field :data_actions, :key=> true, :proc => :url
-    field :breadcrumbs, :inherit=>true, :key=> true, :proc => :path
-
-    def query_scope &block
-    end
-
-    def create_scope &block
-    end
-
+    field :breadcrumbs, :inherit=>true, :key=> true, :proc => :link
   end
   
 end

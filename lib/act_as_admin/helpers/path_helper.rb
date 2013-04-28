@@ -1,57 +1,38 @@
 module ActAsAdmin::Helpers
   module PathHelper
 
-    def new_resource_path params={}
-      to_resource_path :action=>:new, :resource=>singular_name, :params=>params
+    def new_resource_path params=nil
+      @context.path_for :action=>:new, :singular=>true do |helper_name, *args|
+        self.send helper_name, *(args + [params].compact)
+      end
     end
 
-    def edit_resource_path resource, params={}
-      to_resource_path :action=>:edit, :resource=>singular_name, :params=>params, :args=>[resource]
+    def edit_resource_path resource, params=nil
+      @context.path_for :action=>:edit, :singular=>true do |helper_name, *args|
+        self.send helper_name, *(args + [resource, params].compact)
+      end
     end
 
-    def resource_path resource, params={}
-      to_resource_path :resource=>singular_name, :params=>params, :args=>[resource]
+    def resource_path resource, params=nil
+      @context.path_for :singular=>true do |helper_name, *args|
+        self.send helper_name, *(args + [resource, params].compact)
+      end
     end
 
-    def resources_path params={}
-      to_resource_path :resource=>plural_name, :params=>params
+    def resources_path params=nil
+      @context.path_for do |helper_name, *args|
+        self.send helper_name, *(args + [params].compact)
+      end
     end
 
-    def to_resource_path opts={}, parents = nil
-      parents = parents || @parents.keys
-      action = opts.delete(:action)
-      resource = opts.delete(:resource)
-      parent_names = parents.collect{|p| model_name p.class}
-      helper_method=[action, parent_names, resource, "path"].flatten.compact.join("_").to_sym
-
-      args = opts.delete(:args) || []
-      params = opts.delete(:params) || {}  
-      args.unshift(*parents).compact!
-      args << params
-
-      self.send helper_method, *args
-    end
-
-
-    def plural_name
-      singular_name.pluralize
-    end
-
-    def singular_name
-      model_name @model 
-    end
-
-    def parent_name
-      parent = @parents.keys.last
-      return unless parent
+    def parent_path params=nil
+      parents = @context.parents.keys
+      resource = parents.slice!(-1)
+      resource_name = @context.resource_name(resource)
       
-      model_name parent.class
+      @context.path_for(:resource=>resource_name, :parents=>parents, :singular=>true){|helper, *args|
+        self.send(helper.to_sym, *(args+[resource]))
+      }
     end
-
-    def model_name model_class
-      model_class.model_name.split(/:+/).last.underscore
-    end
-
-    
   end
 end
