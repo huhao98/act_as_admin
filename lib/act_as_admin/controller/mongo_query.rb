@@ -2,7 +2,7 @@ module ActAsAdmin::Controller
 
   class MongoQuery
     attr_reader :query, :query_params, :query_meta_data
-    attr_reader :items    
+    attr_reader :items, :from  
 
     def initialize(from, query)
       @from = from
