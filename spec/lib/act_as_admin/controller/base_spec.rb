@@ -33,6 +33,8 @@ describe ::ActAsAdmin::Controller::Base do
       resource = controller.instance_variable_get("@resource")
       expect(resource).to eq(dummy)
       expect(resource.name).to eq("assigned name")
+      iv = controller.instance_variable_get("@#{context.config.resource_name}")
+      expect(iv).to eq(resource)
     end
 
     it "should assign fields with resovled proc value when creating new resource" do
@@ -63,6 +65,8 @@ describe ::ActAsAdmin::Controller::Base do
 
       controller.find_resource
       expect(controller.instance_variable_get("@resource")).to eq(dummy)
+      iv = controller.instance_variable_get("@#{context.config.resource_name}")
+      expect(iv).to eq(dummy)
     end
 
     it "should resolve from_query" do
