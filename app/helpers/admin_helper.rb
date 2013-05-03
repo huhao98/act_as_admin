@@ -1,11 +1,12 @@
 module AdminHelper
   include ActAsAdmin::Helpers::PathHelper  
 
-  def field_name field
-    @context.model.human_attribute_name(field)
+  def field_name field, opts={}
+    model = opts[:model] || @context.model
+    model.human_attribute_name(field)
   end
 
-  def field_value data, field, opts
+  def field_value data, field, opts={}
     return self.instance_exec(data, &opts[:content]) if opts[:content].is_a? Proc
     return data.send(field.to_sym)
   end

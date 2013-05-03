@@ -47,6 +47,7 @@ module AdminQueryHelper
       case type
       when :range
         concat(range_box field, applied_filter(field))
+
       when :select, :scope
         values = opts[:values] || (query_meta_data[field]||{})[:values] || []
         value = applied_filter(field)
@@ -83,10 +84,10 @@ module AdminQueryHelper
 
   def search_box field, value
     params = filter_params field
-    form_tag(query_url, :method => :get, :class=>"form-search"){
+    form_tag(query_url, :method => :get, :class=>"form-inline"){
       concat query_hidden_fields(:o, params)
       concat query_hidden_fields(:f, params)
-      concat text_field_tag("f[#{field}]", value, :placeholder=>field_name(field), :class=>"input-medium search-query" )
+      concat text_field_tag("f[#{field}]", value, :placeholder=>field_name(field), :class=>"input-medium " )
       concat submit_tag(t("act_as_admin.actions.search"), :class=>"btn")
       concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
     }
@@ -94,14 +95,16 @@ module AdminQueryHelper
 
   def range_box field, value
     #value=[1] or value=[1,2] or value=nil
-    params = filter_params field
+    params = filter_params field    
     value ||= []
-    form_tag(query_url, :method=>:get, :class=>"form-inline"){
+    field_options = {:placeholder=>field_name(field), :class=>"input-small datepicker", :readonly=>true, :"data-format"=>"yyyy/mm/dd"}
+
+    form_tag(query_url, :method=>:get, :class=>"form-inline",:style=>"margin-left:10px"){
       concat query_hidden_fields(:o, params)
       concat query_hidden_fields(:f, params)
-      concat text_field_tag("f[#{field}][]", value[0],:placeholder=>field_name(field), :class=>"input-mini")
-      concat content_tag(:span, "-")
-      concat text_field_tag("f[#{field}][]", value[1],:placeholder=>field_name(field), :class=>"input-mini")
+      concat text_field_tag("f[#{field}][]", value[0], field_options)
+      concat content_tag(:span,"-")
+      concat text_field_tag("f[#{field}][]", value[1], field_options)
       concat submit_tag(t("act_as_admin.actions.range"), :class=>"btn")
       concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
     }
