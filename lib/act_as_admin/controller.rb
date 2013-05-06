@@ -27,7 +27,7 @@ module ActAsAdmin
 
         resource_name = opts.delete(:as) || to_resource_name(self)
         @admin_config = ActAsAdmin::Config.new opts.merge(:model=>model_class, :resource_name=>resource_name.to_s)
-        config_defaults(@admin_config)
+        config_defaults(@admin_config, opts)
         @admin_config.instance_exec(&block) if block_given?
       end
 
@@ -39,17 +39,15 @@ module ActAsAdmin
         return names.join("_").singularize
       end
 
-      def config_defaults admin_config
+      def config_defaults admin_config, opts={}
         model_class = admin_config.model
         title_field = admin_config.opts[:title_field] || :to_s
 
         admin_config.instance_eval do
           page :default do |p|
             p.header(:major, :text=>model_class.model_name.human)
-            p.header(:minor){@resource.send(title_field) if @resource}
-            p.breadcrumb(:resources) do 
-              [model_class.model_name.human, resources_path] unless @context.exclude_nested_index?
-            end
+            p.header(:minor){@resource.send(title_field) if @resource}            
+            p.breadcrumb(:resources){[model_class.model_name.human, resources_path] unless @context.exclude_nested_index?}
           end
 
           index_page do |p|

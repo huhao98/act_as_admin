@@ -55,6 +55,10 @@ module ActAsAdmin::Controller
       @items ||= @from.paginate(:page=> page , :per_page=>per_page)
     end
 
+    def all_items
+       @from.all
+    end
+
     def aggregate opts={}
       collection = @from.context.collection
       selector = @from.context.query.selector
@@ -88,6 +92,12 @@ module ActAsAdmin::Controller
         Proc.new do |c,v|
           range=v.collect(&:to_f);
           c.where(field.gte=>range.min, field.lte=>range.max)
+        end
+
+      when :date_range
+        Proc.new do |c,v|
+          d = v.collect(&:to_date)
+          c.where(field.gte=>d[0], field.lte=>d[1])
         end
 
       else

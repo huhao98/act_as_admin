@@ -36,7 +36,7 @@ module AdminQueryHelper
 
   def filter_group *types
     query_meta_data = query_result.query_meta_data
-    types = [:select, :scope, :range, :search] if types.empty?
+    types = [:select, :scope, :date_range, :search] if types.empty?
     filters = query_result.query.filters.select do |field, opts|
       type = opts[:type] || :search
       types.include? type
@@ -45,7 +45,7 @@ module AdminQueryHelper
     filters.each do |field, opts|
       type = opts[:type]
       case type
-      when :range
+      when :date_range
         concat(range_box field, applied_filter(field))
 
       when :select, :scope
