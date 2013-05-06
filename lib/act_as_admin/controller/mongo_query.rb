@@ -2,7 +2,7 @@ module ActAsAdmin::Controller
 
   class MongoQuery
     attr_reader :query, :query_params, :query_meta_data
-    attr_reader :items, :from  
+    attr_reader :from
 
     def initialize(from, query)
       @from = from
@@ -43,13 +43,31 @@ module ActAsAdmin::Controller
     end
 
     def paginate page
-      per_page = query.per_page || 10
-      @items = @from.paginate(:page=> page , :per_page=>per_page)
+      @page = page      
       return self
     end
 
-    private
+    def items
+      return @items unless @items.nil?
 
+      per_page = query.per_page || 10
+      page = @page || 1
+      @items ||= @from.paginate(:page=> page , :per_page=>per_page)
+    end
+
+    def aggregate opts={}
+      collection = @from.context.collection
+      selector = @from.context.query.selector
+
+      match = selector.merge(opts.delete(:match) || {})
+      aggregate = [{"$match" => match}]
+      aggregate << {"$sort" => opts[:sort]} if (opts[:sort])
+      aggregate << {"$group"=> opts[:group]} if (opts[:group])      
+      collection.aggregate(aggregate)
+    end
+
+
+    private
     def update_query_meta_data
       @query_meta_data ||= {}
       query.filters.each do |field, opts|
@@ -58,7 +76,7 @@ module ActAsAdmin::Controller
           @query_meta_data[field] ||= {}
           @query_meta_data[field].merge!(:values=>values)
         end
-      end      
+      end
     end
 
     def default_filter_proc field, type
@@ -67,8 +85,8 @@ module ActAsAdmin::Controller
         Proc.new{|c,v| c.where(field=>v)}
 
       when :range
-        Proc.new do |c,v| 
-          range=v.collect(&:to_f); 
+        Proc.new do |c,v|
+          range=v.collect(&:to_f);
           c.where(field.gte=>range.min, field.lte=>range.max)
         end
 
@@ -78,15 +96,13 @@ module ActAsAdmin::Controller
     end
 
     def apply_orders applied_orders
-      @query_params[:o] = applied_orders || {}
+     @query_params[:o] = applied_orders || {}
     end
 
     def apply_filter field, value
-      @query_params[:f] ||= {}
-      @query_params[:f][field.to_sym] = value
+     @query_params[:f] ||= {}
+     @query_params[:f][field.to_sym] = value
     end
-    
 
   end
-
 end
