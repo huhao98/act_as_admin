@@ -134,7 +134,7 @@ module AdminQueryHelper
   end
 
   def query_url params={}
-    return self.instance_exec(params, &@context.query.path_proc)
+    return self.instance_exec(params, &query_result.query.path_proc)
   end
 
   def query_hidden_fields prefix, params
