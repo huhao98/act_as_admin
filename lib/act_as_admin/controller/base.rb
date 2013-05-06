@@ -49,10 +49,12 @@ module ActAsAdmin::Controller
     def new_resource
       @resource = @context.model.new(params[model_sym])
       @context.fields{|name, value| @resource.send("#{name}=", resolve(value))}
+      self.instance_variable_set("@#{@context.config.resource_name}", @resource)
     end
 
     def find_resource
       @resource = resolve(@context.find_from).find(params[:id])
+      self.instance_variable_set("@#{@context.config.resource_name}", @resource)
     end
 
     def find_resources
