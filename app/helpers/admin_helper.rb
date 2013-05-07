@@ -2,8 +2,11 @@ module AdminHelper
   include ActAsAdmin::Helpers::PathHelper  
 
   def field_name field, opts={}
-    model = opts[:model] || @context.model
-    model.human_attribute_name(field)
+    context_model = @context.model if @context
+    model = opts[:model] || context_model
+    
+    return model.human_attribute_name(field) unless model.nil?
+    return t(:"attributes.#{field}", :default=>field.to_s.humanize)
   end
 
   def field_value data, field, opts={}
