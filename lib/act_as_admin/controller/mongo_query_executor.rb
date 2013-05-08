@@ -1,8 +1,8 @@
 module ActAsAdmin::Controller
 
-  class MongoQuery
-    attr_reader :query, :query_params, :query_meta_data
-    attr_reader :from
+  class MongoQueryExecutor
+    attr_reader :query, :from
+    attr_reader :query_params, :query_meta_data
 
     def initialize(from, query)
       @from = from
@@ -47,29 +47,10 @@ module ActAsAdmin::Controller
       return self
     end
 
-    def items
-      return @items unless @items.nil?
-
-      per_page = query.per_page || 10
-      page = @page || 1
-      @items ||= @from.paginate(:page=> page , :per_page=>per_page)
+    def result
+      return ActAsAdmin::Controller::MongoQueryResult.new(from, query, 
+        :query_params=>@query_params, :meta_data=>@query_meta_data, :page=>@page)
     end
-
-    def all_items
-       @from.all
-    end
-
-    def aggregate opts={}
-      collection = @from.context.collection
-      selector = @from.context.query.selector
-
-      match = selector.merge(opts.delete(:match) || {})
-      aggregate = [{"$match" => match}]
-      aggregate << {"$sort" => opts[:sort]} if (opts[:sort])
-      aggregate << {"$group"=> opts[:group]} if (opts[:group])      
-      collection.aggregate(aggregate)
-    end
-
 
     private
     def update_query_meta_data

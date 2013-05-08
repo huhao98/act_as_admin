@@ -2,30 +2,21 @@
 
 module AdminQueryHelper
 
+  # Render a button group for all orders
   def orders_group
-    orders = query_result.query.orders
+    orders = query.orders
     return unless orders.present?
+
     bootstrap_btn_group(orders) do |field, opts|
       concat order_link(field, opts){|text, url, active| link_to(text, url, active_btn_option(active))}
     end
   end
 
-  def order_link field, opts={}
-    default_dir = opts[:dir].to_s
-    applied_dir = applied_dir(field)
-    name = field_name(field)
-    url = order_url(field, applied_dir, default_dir)
-    icon = {
-      "desc" => "<i class='icon-sort-up gray'></i>",
-      "asc" => "<i class='icon-sort-down gray'></i>",
-      "none" => "<i class='icon-sort gray'></i>"
-    }[applied_dir || "none"]
 
-    yield("#{name} #{icon}".html_safe, url, applied_dir.present?)
-  end
-
+  # Render a single order link for a field if the field is included in the query.orders
+  # otherwise render the field name
   def order_header field
-    orders = query_result.query.orders || {}
+    orders = query.orders || {}
     if orders.has_key?(field.to_sym)
       order_link(field, orders[field]){|text, url, active| link_to(text, url)}      
     else
@@ -33,38 +24,56 @@ module AdminQueryHelper
     end
   end
 
-
   def filter_group *types
-    query_meta_data = query_result.query_meta_data
     types = [:select, :scope, :date_range, :search] if types.empty?
-    filters = query_result.query.filters.select do |field, opts|
-      type = opts[:type] || :search
-      types.include? type
+    fields = query.filters.inject([]) do |memo, item|
+      field = item[0];config=item[1]
+      matched_field = [field] if types.include? (config[:type] || :search)
+      memo + (matched_field || [])
     end
 
-    filters.each do |field, opts|
-      type = opts[:type]
-      case type
-      when :date_range
-        concat(range_box field, applied_filter(field))
-
-      when :select, :scope
-        values = opts[:values] || (query_meta_data[field]||{})[:values] || []
-        value = applied_filter(field)
-
-        concat(values_dropdown field, value, values) if type == :select
-        concat(scope_buttons field, value, values) if type == :scope
-      else
-        concat(search_box field, applied_filter(field))
-      end
-    end
+    fields.each {|field| concat filter(field)}
     return nil
   end
 
 
 
-  def values_dropdown field, value, values
-    hv = field_value_human(field, value) unless value.nil?
+  def filter field
+    config = query.filters[field]
+    opts = {:type => config[:type], :value=> applied_filter(field)}
+
+    if [:select, :scope].include? opts[:type]
+      meta_data = query_result.query_meta_data[field] || {}      
+      opts[:values] = (config[:values] || meta_data[:values] || []) 
+    end
+    render_filter(field, opts)
+  end
+
+
+
+  def render_filter field, opts    
+    type = opts.delete(:type)   
+    case type
+      when :date_range
+        range_box(field, opts)
+
+      when :select
+        values_dropdown(field, opts) 
+
+      when :scope
+        scope_buttons(field, opts)
+
+      else
+        search_box(field, opts)      
+    end
+  end
+
+
+  def values_dropdown field, opts={}
+    value = opts.delete :value
+    values = opts.delete :values
+
+    hv = field_value_human(field, value) unless value.nil?    
     bootstrap_dropdown_button([field_name(field), hv].compact.join(" : ")) do
       concat(content_tag :li, link_to(t("act_as_admin.actions.all"), filter_url(field))) unless value.blank?
       values.each{|v|
@@ -74,7 +83,10 @@ module AdminQueryHelper
     end
   end
 
-  def scope_buttons field, value, values
+  def scope_buttons field, opts={}
+    value = opts.delete :value
+    values = opts.delete :values
+
     bootstrap_btn_group(values) do |v|
       active =  (v == value)
       url = active ? filter_url(field) : filter_url(field, v)
@@ -82,7 +94,9 @@ module AdminQueryHelper
     end
   end
 
-  def search_box field, value
+  def search_box field, opts={}
+    value = opts.delete :value
+
     params = filter_params field
     form_tag(query_url, :method => :get, :class=>"form-inline"){
       concat query_hidden_fields(:o, params)
@@ -93,10 +107,11 @@ module AdminQueryHelper
     }
   end
 
-  def range_box field, value
+  def range_box field, opts={}
     #value=[1] or value=[1,2] or value=nil
+    value = opts.delete(:value) || []
     params = filter_params field    
-    value ||= []
+   
     field_options = {:placeholder=>field_name(field), :class=>"input-small datepicker", :readonly=>true, :"data-format"=>"yyyy/mm/dd"}
 
     form_tag(query_url, :method=>:get, :class=>"form-inline",:style=>"margin-left:10px"){
@@ -111,10 +126,48 @@ module AdminQueryHelper
   end
 
   private
+
+  # Helper method to generate an order link
+  def order_link field, opts={}
+    default_dir = opts[:dir].to_s
+    applied_dir = applied_dir(field)
+    name = field_name(field)
+    url = order_url(field, applied_dir, default_dir)
+    icon = {
+      "desc" => "<i class='icon-sort-up gray'></i>",
+      "asc" => "<i class='icon-sort-down gray'></i>",
+      "none" => "<i class='icon-sort gray'></i>"
+    }[applied_dir || "none"]
+    yield("#{name} #{icon}".html_safe, url, applied_dir.present?)
+  end
+
+  
+ 
   def active_btn_option active
     cls = "active btn-info" if active
     {:class => (["btn"] + [cls]).compact.join(" ")}
   end
+
+
+
+  
+
+  
+
+  def query
+    return query_result.query
+  end
+
+  def query_result
+    return @query_result
+  end
+
+  def query_params
+    query_result.query_params.merge(params.except(:f, :o))
+  end
+
+
+
 
   def order_url field, applied_dir, default_dir
     dir = applied_dir || default_dir || "asc"
@@ -125,17 +178,12 @@ module AdminQueryHelper
     return query_url filter_params(field, value)
   end
 
-  def query_result
-    return @query_result
-  end
-
-  def query_params
-    @query_result.query_params.merge(params.except(:f, :o))
-  end
-
   def query_url params={}
-    return self.instance_exec(params, &query_result.query.path_proc)
+    return self.instance_exec(params, &query.path_proc)
   end
+
+
+  
 
   def query_hidden_fields prefix, params
     (params[prefix]||{}).collect do |field, value|
@@ -146,8 +194,6 @@ module AdminQueryHelper
       end
     end.flatten.join("\n").html_safe
   end
-
-
 
   def filter_params field, value=nil
     p = query_params

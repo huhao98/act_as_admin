@@ -10,7 +10,8 @@ module ActAsAdmin
     autoload :NavConfig, 'act_as_admin/helpers/nav_config'
   end
   module Controller
-    autoload :MongoQuery, 'act_as_admin/controller/mongo_query'
+    autoload :MongoQueryExecutor, 'act_as_admin/controller/mongo_query_executor'
+    autoload :MongoQueryResult, 'act_as_admin/controller/mongo_query_result'
   end
 end
 
