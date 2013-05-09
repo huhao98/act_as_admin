@@ -3,6 +3,9 @@ module ActAsAdmin::Controller
 
     attr_reader :criteria, :query_config
     alias_method :query, :query_config
+    
+    delegate :filters, :orders, :to=>:query_config
+    delegate :path_proc, :to=>:query_config
 
     def initialize criteria, query_config, opts = {}
       @criteria = criteria

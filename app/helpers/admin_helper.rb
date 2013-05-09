@@ -4,7 +4,6 @@ module AdminHelper
   def field_name field, opts={}
     context_model = @context.model if @context
     model = opts[:model] || context_model
-    
     return model.human_attribute_name(field) unless model.nil?
     return t(:"attributes.#{field}", :default=>field.to_s.humanize)
   end
@@ -16,10 +15,14 @@ module AdminHelper
 
   def field_value_human field, value, model = nil
     return if value.nil?
-    
-    scope = model.nil? ? "values" :  model.i18n_scope 
+    scope = model.nil? ? "values" :  model.i18n_scope
     t(:"#{scope}.#{field}.#{value}", :default=>value)
   end
+
+  def human_attribute_value(model_class, attr_name, value)
+    I18n.t("mongoid.values.#{model_class.model_name.i18n_key}.#{attr_name}.#{value}", :default=>value.humanize) if value
+  end
+
 
   def page_header headers
     major = headers[:major]

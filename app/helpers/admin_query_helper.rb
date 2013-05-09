@@ -3,216 +3,133 @@
 module AdminQueryHelper
 
   # Render a button group for all orders
-  def orders_group
-    orders = query.orders
-    return unless orders.present?
-
+  def orders_group orders
+    orders ||= {}
     bootstrap_btn_group(orders) do |field, opts|
       concat order_link(field, opts){|text, url, active| link_to(text, url, active_btn_option(active))}
     end
   end
 
+  # Render a group of filters for the given filter type
+  def filter_group types, opts
+    filters = opts.delete(:filters) || {}
+    types = [:select, :scope, :date_range, :search] if types.empty?
+    filters.each do |field, config|
+      if types.include? (config[:type] || :search)
+        values = meta_data(field)[:values]
+        config = config.merge(:values=> values) if values
+        concat render_filter(field, config) 
+      end
+    end
+  end
 
-  # Render a single order link for a field if the field is included in the query.orders
-  # otherwise render the field name
-  def order_header field
-    orders = query.orders || {}
-    if orders.has_key?(field.to_sym)
-      order_link(field, orders[field]){|text, url, active| link_to(text, url)}      
+  def order_header field, opts={}
+    unless opts.nil?
+      order_link(field, opts){|text, url, active| link_to(text, url)}
     else
       field_name(field)
     end
   end
 
-  def filter_group *types
-    types = [:select, :scope, :date_range, :search] if types.empty?
-    fields = query.filters.inject([]) do |memo, item|
-      field = item[0];config=item[1]
-      matched_field = [field] if types.include? (config[:type] || :search)
-      memo + (matched_field || [])
-    end
+  def render_filter field, opts={}
+    value = filter_value(query_params, field)
+    values = opts[:values] || []
 
-    fields.each {|field| concat filter(field)}
-    return nil
-  end
+    case opts[:type]
+    when :date_range
+      range_box(field, value)
 
+    when :select
+      values_dropdown(field, value, values)
 
+    when :scope
+      scope_buttons(field, value, values)
 
-  def filter field
-    config = query.filters[field]
-    opts = {:type => config[:type], :value=> applied_filter(field)}
-
-    if [:select, :scope].include? opts[:type]
-      meta_data = query_result.query_meta_data[field] || {}      
-      opts[:values] = (config[:values] || meta_data[:values] || []) 
-    end
-    render_filter(field, opts)
-  end
-
-
-
-  def render_filter field, opts    
-    type = opts.delete(:type)   
-    case type
-      when :date_range
-        range_box(field, opts)
-
-      when :select
-        values_dropdown(field, opts) 
-
-      when :scope
-        scope_buttons(field, opts)
-
-      else
-        search_box(field, opts)      
+    else
+      search_box(field, value)
     end
   end
 
-
-  def values_dropdown field, opts={}
-    value = opts.delete :value
-    values = opts.delete :values
-
-    hv = field_value_human(field, value) unless value.nil?    
-    bootstrap_dropdown_button([field_name(field), hv].compact.join(" : ")) do
-      concat(content_tag :li, link_to(t("act_as_admin.actions.all"), filter_url(field))) unless value.blank?
-      values.each{|v|
-        html_opts = {:class=>"active"} if (v.to_s == value.to_s)
-        concat content_tag(:li, link_to(field_value_human(field, v), filter_url(field, v)), html_opts)
-      }
-    end
-  end
-
-  def scope_buttons field, opts={}
-    value = opts.delete :value
-    values = opts.delete :values
-
-    bootstrap_btn_group(values) do |v|
-      active =  (v == value)
-      url = active ? filter_url(field) : filter_url(field, v)
-      concat link_to(field_value_human(field, v), url, active_btn_option(active))
-    end
-  end
-
-  def search_box field, opts={}
-    value = opts.delete :value
-
-    params = filter_params field
-    form_tag(query_url, :method => :get, :class=>"form-inline"){
-      concat query_hidden_fields(:o, params)
-      concat query_hidden_fields(:f, params)
-      concat text_field_tag("f[#{field}]", value, :placeholder=>field_name(field), :class=>"input-medium " )
-      concat submit_tag(t("act_as_admin.actions.search"), :class=>"btn")
-      concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
-    }
-  end
-
-  def range_box field, opts={}
-    #value=[1] or value=[1,2] or value=nil
-    value = opts.delete(:value) || []
-    params = filter_params field    
-   
-    field_options = {:placeholder=>field_name(field), :class=>"input-small datepicker", :readonly=>true, :"data-format"=>"yyyy/mm/dd"}
-
-    form_tag(query_url, :method=>:get, :class=>"form-inline",:style=>"margin-left:10px"){
-      concat query_hidden_fields(:o, params)
-      concat query_hidden_fields(:f, params)
-      concat text_field_tag("f[#{field}][]", value[0], field_options)
-      concat content_tag(:span,"-")
-      concat text_field_tag("f[#{field}][]", value[1], field_options)
-      concat submit_tag(t("act_as_admin.actions.range"), :class=>"btn")
-      concat link_to(t("act_as_admin.actions.clear"), filter_url(field), :class=>"btn") unless value.blank?
-    }
-  end
 
   private
 
-  # Helper method to generate an order link
-  def order_link field, opts={}
-    default_dir = opts[:dir].to_s
-    applied_dir = applied_dir(field)
-    name = field_name(field)
-    url = order_url(field, applied_dir, default_dir)
-    icon = {
-      "desc" => "<i class='icon-sort-up gray'></i>",
-      "asc" => "<i class='icon-sort-down gray'></i>",
-      "none" => "<i class='icon-sort gray'></i>"
-    }[applied_dir || "none"]
-    yield("#{name} #{icon}".html_safe, url, applied_dir.present?)
+   # Render a dropdown button as filter select
+  def values_dropdown field, value, values
+    label = [field_name(field), field_value_human(field, value)].compact.join(" : ")
+    bootstrap_dropdown_button(label) do
+      concat(content_tag :li, link_to(t("act_as_admin.actions.all"), filter(field).query_url)) unless value.blank?
+      values.each do |v|
+        html_opts = {:class=>"active"} if (v.to_s == value.to_s)
+        url = filter(field,v).query_url
+        label = field_value_human(field, v)
+        concat content_tag(:li, link_to(label, url, html_opts))
+      end
+    end
   end
 
-  
- 
+  # Render a button group as filter scope
+  def scope_buttons field, value, values
+    bootstrap_btn_group(values) do |v|
+      filter_value = v unless v == value
+      url = filter(field, filter_value).query_url
+      html_opts = active_btn_option(filter_value.nil?)
+      concat link_to(field_value_human(field, v), url, html_opts)
+    end
+  end
+
+  # Render a search box
+  def search_box field, value
+    form_tag(query_url, :method => :get, :class=>"form-inline"){
+      concat filter(field).hidden_fields
+      concat text_field_tag("f[#{field}]", value, :placeholder=>field_name(field), :class=>"input-medium " )
+      concat submit_tag(t("act_as_admin.actions.search"), :class=>"btn")
+      concat link_to(t("act_as_admin.actions.clear"), filter(field).query_url, :class=>"btn") unless value.nil?
+    }
+  end
+
+  # Render a range box
+  def range_box field, value
+    #value=[1] or value=[1,2] or value=nil
+    value ||= []
+    form_tag(query_url, :method=>:get, :class=>"form-inline",:style=>"margin-left:10px"){
+      input_options = {
+        :placeholder=>field_name(field),
+        :class=>"input-small datepicker",
+        :readonly=>true,
+        :"data-format"=>"yyyy/mm/dd"
+      }
+      concat hidden_fields(filter(field).query_params)
+      concat text_field_tag("f[#{field}][]", value[0], input_options)
+      concat content_tag(:span,"-")
+      concat text_field_tag("f[#{field}][]", value[1], input_options)
+      concat submit_tag(t("act_as_admin.actions.range"), :class=>"btn")
+      concat link_to(t("act_as_admin.actions.clear"), filter(field).query_url, :class=>"btn") unless value.blank?
+    }
+  end
+
+
+  def meta_data field
+    meta_data = @query_result.query_meta_data if @query_result
+    meta_data ||= {}
+    meta_data[field] || {}
+  end
+
   def active_btn_option active
     cls = "active btn-info" if active
     {:class => (["btn"] + [cls]).compact.join(" ")}
   end
 
+  # Helper method to generate an order link
+  def order_link field, opts
+    default = opts[:dir].to_s
+    value = order_value query_params, field
 
-
-  
-
-  
-
-  def query
-    return query_result.query
-  end
-
-  def query_result
-    return @query_result
-  end
-
-  def query_params
-    query_result.query_params.merge(params.except(:f, :o))
-  end
-
-
-
-
-  def order_url field, applied_dir, default_dir
-    dir = applied_dir || default_dir || "asc"
-    return query_url query_params.merge(:o=> {field => dir})
-  end
-
-  def filter_url field, value=nil
-    return query_url filter_params(field, value)
-  end
-
-  def query_url params={}
-    return self.instance_exec(params, &query.path_proc)
-  end
-
-
-  
-
-  def query_hidden_fields prefix, params
-    (params[prefix]||{}).collect do |field, value|
-      if (value.respond_to? :map)
-        value.collect{|v| hidden_field_tag("#{prefix}[#{field}][]", v)}
-      else
-        hidden_field_tag("#{prefix}[#{field}]", value)
-      end
-    end.flatten.join("\n").html_safe
-  end
-
-  def filter_params field, value=nil
-    p = query_params
-    p[:f] = (p[:f] || {}).clone
-    if (value.nil?)
-      p[:f].except!(field)
-    else
-      p[:f].merge!(field =>value)
-    end
-    return p
-  end
-
-  def applied_dir field
-    o = query_params[:o] || {}
-    {"desc"=>"asc", "asc"=>"desc"}[o[field]] if (o.keys.include? field)
-  end
-
-  def applied_filter field
-    return (query_params[:f] || {})[field]
+    icon = {
+      "desc" => "<i class='icon-sort-up gray'></i>",
+      "asc" => "<i class='icon-sort-down gray'></i>",
+      "none" => "<i class='icon-sort gray'></i>"
+    }[value || "none"]
+    yield("#{field_name(field)} #{icon}".html_safe, order(field, value, default).query_url, value.present?)
   end
 
 end

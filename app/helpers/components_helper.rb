@@ -10,11 +10,6 @@ module ComponentsHelper
   end
 
 
-  def human_attribute_value(model_class, attr_name, value)
-    I18n.t("mongoid.values.#{model_class.model_name.i18n_key}.#{attr_name}.#{value}", :default=>value.humanize) if value
-  end
-
-
   #<li>
   #  <dt><strong><%= Task.human_attribute_name(:name) %>:</strong></dt>
   #  <dd><%= @task.name%></dd>

@@ -1,10 +1,10 @@
 <div class="toolbar">
   <div class="pull-left">
     <%= orders_group%>
-    <%= filter_group :select, :scope%>     
+    <%= filter_group [:select, :scope], :filters=>@query_result.filters%>     
   </div>
 
   <div class="pull-right">
-   <%= filter_group :date_range, :search%>     
+   <%= filter_group [:date_range, :search], :filters=>@query_result.filters%>     
   </div>
 </div>
