@@ -4,6 +4,7 @@ module AdminHelper
   def field_name field, opts={}
     context_model = @context.model if @context
     model = opts[:model] || context_model
+
     return model.human_attribute_name(field) unless model.nil?
     return t(:"attributes.#{field}", :default=>field.to_s.humanize)
   end
@@ -13,75 +14,19 @@ module AdminHelper
     return data.send(field.to_sym)
   end
 
-  def field_value_human field, value, model = nil
+  def field_value_human field, value, opts={}
     return if value.nil?
-    scope = model.nil? ? "values" :  model.i18n_scope
-    t(:"#{scope}.#{field}.#{value}", :default=>value)
-  end
+    context_model = @context.model if @context
+    model = opts[:model] || context_model
 
-  def human_attribute_value(model_class, attr_name, value)
-    I18n.t("mongoid.values.#{model_class.model_name.i18n_key}.#{attr_name}.#{value}", :default=>value.humanize) if value
-  end
-
-
-  def page_header headers
-    major = headers[:major]
-    minor = headers[:minor]
-    content_tag(:h2) do
-      concat(resolve(major[:text])) if major
-      if minor
-        concat(" ")
-        concat(content_tag :small, resolve(minor[:text]))
-      end
+    defaults=[value]
+    key = :"values.#{field}.#{value}"
+    if (model)
+      defaults.unshift(key)
+      key = :"#{model.i18n_scope}.values.#{model.model_name.i18n_key}.#{field}.#{value}"
     end
-  end
 
-  def action_group actions, opts={}
-    data = opts.delete(:data_item)
-    content_tag(:div, :class=>"btn-group") do
-      actions.each{|k, v| concat action_link(k, opts.merge(v), data)}
-    end
-  end
-
-  def action_dropdown actions, opts={}
-    return unless actions.size > 0
-    data = opts.delete(:data_item)
-    actions = actions.to_a
-    first = actions.slice(0)
-    reset = actions.slice(1..actions.size-1)
-
-    main_btn = action_link *[first[0], first[1].merge(opts), data].compact
-    return main_btn unless reset.size > 0
-
-    content_tag(:div, :class=>"btn-group") do
-      concat main_btn
-      concat content_tag(:button, content_tag(:span, "", :class=>"caret"), :class=>"btn dropdown-toggle", :"data-toggle"=>"dropdown")
-      concat(content_tag(:ul, :class=>"dropdown-menu"){
-        reset.each{|item| concat content_tag(:li, action_link(item[0], item[1].except(:class), data))}
-      })
-    end
-  end
-
-  
-  private 
-
-  def action_name key
-    I18n.translate("helpers.links.#{@context.resource_name}.#{key}", :default=>t("helpers.links.#{key}", :default=>key.to_s))
-  end
-
-  def action_icon key
-    t("helpers.links.#{@context.resource_name}.#{key}_icon", :default=>t("helpers.links.#{key}_icon", :default=>""))
-  end
-
-  def action_link key, opts, data=nil
-    url = resolve(opts.delete(:url), data)
-    return unless url
-    
-    name = action_name(key)
-    icon = action_icon(key)
-    content = [name]
-    content.unshift(content_tag :i,"", :class=>icon) unless icon.nil?
-    link_to(content.join(" ").html_safe, url, opts)
+    t(key, :default=>defaults)
   end
 
   def resolve value, *args

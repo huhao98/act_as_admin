@@ -7,6 +7,7 @@ module ActAsAdmin
   autoload :Config, 'act_as_admin/config'
   module Helpers
     autoload :PathHelper, 'act_as_admin/helpers/path_helper'
+    autoload :QueryParams, 'act_as_admin/helpers/query_params'
     autoload :NavConfig, 'act_as_admin/helpers/nav_config'
   end
   module Controller

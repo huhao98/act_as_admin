@@ -1,6 +1,6 @@
 <% content_for :main do %>
-  <%= render :partial=>"/act_as_admin/components/toolbar"%>
-  <%= render :partial=>"/act_as_admin/components/list", :locals=>{:data=>@resources, :page=>@context.page}%>
+  <%= toolbar(@query_result)%>
+  <%= data_grid(@context.page, @query_result.items, :query_params=>query_result_helper(@query_result))%>
   <%= render :partial=>"/act_as_admin/components/paging"%>
 <% end %>
 
