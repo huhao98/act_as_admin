@@ -44,7 +44,7 @@ module ActAsAdmin::Helpers
 
     def order(field, value, default=nil)
       p = @query_params.clone
-      dir = order_value(field) || default || "asc"
+      dir =[order_value(field), default, "asc"].select{|a| a.present?}.first
       p.merge!(:o=> {field => dir})
       return freeze(p)
     end

@@ -129,7 +129,7 @@ module AdminQueryHelper
   def order_link query_params, field
     value = query_params.order_value(field)
     order_opts = query_params.orders[field] || {}
-    default_dir = order_opts[:dir].to_s || "asc"
+    default_dir = order_opts[:dir] || "asc"
 
     icon = {
       "desc" => "<i class='icon-sort-up gray'></i>",

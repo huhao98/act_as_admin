@@ -6,6 +6,7 @@ module ActAsAdmin::Builder
 
     # field(:parent, :when=>:new, :parent_model=>Parent)
     # field(:orders, :when=>:new){current_user.orders}
+    
     field :fields, :key=> :true, :proc => :value
     field :parents, :key=> true
 
