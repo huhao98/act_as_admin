@@ -7,10 +7,12 @@ module ActAsAdmin
   autoload :Config, 'act_as_admin/config'
   module Helpers
     autoload :PathHelper, 'act_as_admin/helpers/path_helper'
+    autoload :QueryParams, 'act_as_admin/helpers/query_params'
     autoload :NavConfig, 'act_as_admin/helpers/nav_config'
   end
   module Controller
-    autoload :MongoQuery, 'act_as_admin/controller/mongo_query'
+    autoload :MongoQueryExecutor, 'act_as_admin/controller/mongo_query_executor'
+    autoload :MongoQueryResult, 'act_as_admin/controller/mongo_query_result'
   end
 end
 

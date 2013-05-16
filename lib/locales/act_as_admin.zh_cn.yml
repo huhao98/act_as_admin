@@ -8,6 +8,7 @@ zh_cn:
   act_as_admin:
     actions:
       search: "搜索"
+      date_range: "日期范围"
       range: "范围查找"
       clear: "清除"
       all: "所有"
