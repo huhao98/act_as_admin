@@ -19,9 +19,9 @@ module AdminFormHelper
     when :text_field, :text_area, :password_field, :file_field, :hidden_field, :email_field, \
       :number_field, :phone_field, :range_field, :search_field, :telephone_field, :url_field
       f.send(type, field)
-    when :checkbox
+    when :check_box
       vals = option[:values] || %w[1 0]
-      f.checkbox(field, option, vals[0], vals[1])
+      f.check_box(field, option, vals[0], vals[1])
     when :radio_button
       f.radio_button(field, option[:value], option)
     when :select_field

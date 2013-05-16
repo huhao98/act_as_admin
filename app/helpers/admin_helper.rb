@@ -72,9 +72,9 @@ module AdminHelper
     return unless url
     
     name = action_name(key)
-    icon = action_icon(key)
+    icon = opts.delete(:icon) || action_icon(key)
     content = [name]
-    content.unshift(content_tag :i,"", :class=>icon) unless icon.nil?
+    content.unshift(content_tag :i, "", :class=>icon) unless icon.nil?
     link_to(content.join(" ").html_safe, url, opts)
   end
 
