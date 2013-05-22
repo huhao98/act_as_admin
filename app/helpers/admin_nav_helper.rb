@@ -58,9 +58,8 @@ module AdminNavHelper
 
   def current_resource
     resource = params[:controller]
-    if (@context && @context.parents.present?)
-      resource_name = @context.parents.first[1][:resource_name]
-      resource = resource_name.to_s.pluralize if resource_name
+    if (@context)
+      resource = @context.resource_components.components.keys.first.to_s
     end
     return resource
   end

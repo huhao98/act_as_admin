@@ -7,6 +7,7 @@ require 'mongoid'
 require "action_controller/railtie"
 require 'act_as_admin'
 require 'act_as_admin/config'
+require 'hash-to-ostruct'
 require 'rspec'
 require 'rspec/rails'
 

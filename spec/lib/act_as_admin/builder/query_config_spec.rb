@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe ActAsAdmin::Builder::Query do  
+describe ActAsAdmin::Builder::QueryConfig do  
 
   it "should have default order" do
     subject.order(:created_at, :dir=>"desc")

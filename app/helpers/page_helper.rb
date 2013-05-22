@@ -3,6 +3,8 @@ module PageHelper
 
   # Render page header
   def page_header headers
+    return if headers.empty?
+    
     major = headers[:major]
     minor = headers[:minor]
     content_tag(:h2) do
@@ -27,20 +29,5 @@ module PageHelper
   end
 
 
-  #<li>
-  #  <dt><strong><%= Task.human_attribute_name(:name) %>:</strong></dt>
-  #  <dd><%= @task.name%></dd>
-  #</li>
-  def data_item title, description=nil, opts={}
-    content_tag(:div, :class=>"item") do
-      buf = content_tag(:dt, content_tag(:strong, title))
-      buf += content_tag(:dd, :style=>opts.delete(:style)) do
-        if (description.nil?)
-          yield() if block_given?
-        else
-          description
-        end
-      end
-    end
-  end
+  
 end

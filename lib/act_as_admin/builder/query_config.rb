@@ -1,5 +1,5 @@
 module ActAsAdmin::Builder
-  class Query
+  class QueryConfig
     include ::ActAsAdmin::Builder::Dsl
     attr_reader :path_proc, :per_page, :from, :opts 
     field :filters, :key=> :field, :proc => :condition
