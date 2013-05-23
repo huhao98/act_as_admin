@@ -15,29 +15,28 @@ module ActAsAdmin::Controller
 
     def lists 
       return unless page.lists.present?
-      
-      page.lists.keys.collect{|scope| list(scope)}
+      page.lists.keys.collect{|name| list(name)}
     end
 
-    def list scope=nil
+    def list name=nil
       return unless page.lists.present?
+      name ||= :default
 
-      scope ||= :default
-      list_config = page.lists[scope]
+      list_config = page.lists[name]
       formatters = resource_config.find_formatters(
-        :scope=> scope, 
+        :scope=> list_config.opts[:scope], 
         :fields=> list_config.opts[:fields], 
         :action=> action
       )
-      ActAsAdmin::Components::List.new(formatters, list_config.actions)
+      ActAsAdmin::Components::List.new(formatters, list_config)
     end
 
     def forms
-      page.forms.keys.collect{|scope| form scope}
+      page.forms.keys.collect{|name| form name}
     end
 
-    def form scope=nil
-      scope ||= :default
+    def form name=nil
+      name ||= :default
       form_config = page.forms[:default]
       input_fields = resource_config.find_inputs form_config.fields
       ActAsAdmin::Components::Form.new(input_fields, form_config)

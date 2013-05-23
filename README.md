@@ -1,7 +1,7 @@
-act_as_admin
-============
+TODO::
 
-[![Build Status](https://travis-ci.org/brainet/act_as_admin.png?branch=master)](https://travis-ci.org/brainet/act_as_admin)
-[![Code Quality](https://codeclimate.com/github/brainet/act_as_admin.png)](https://codeclimate.com/github/brainet/act_as_admin)
-
-Quickly create admin style resetful app
+* Nested field in resource configuration
+* List for scoped resource 
+* Exclude default action in a page
+* Update/Create redirect to parent path
+* Single nested resource path

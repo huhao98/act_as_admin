@@ -85,7 +85,7 @@ describe ActAsAdmin::Controller::Context do
         }
         config.page(:index) {
           list
-          list :nested
+          list :nested, :scope=>:nested
         }
       end
 
@@ -125,7 +125,7 @@ describe ActAsAdmin::Controller::Context do
         }
         config.page(:index) {
           list
-          list :nested
+          list :nested, :scope=>:nested
         }
       end
 

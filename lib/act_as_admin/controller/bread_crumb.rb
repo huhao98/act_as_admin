@@ -44,7 +44,7 @@ module ActAsAdmin::Controller
       args = parents << resource
       url = self.send("#{helper}_path".to_sym, *args)
 
-      title_field = opts[:title_field] || :to_s
+      title_field = opts[:title] || :to_s
       title = resource.send(title_field.to_sym)
       add_breadcrumb title, url
     end

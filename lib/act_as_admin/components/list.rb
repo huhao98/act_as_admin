@@ -5,31 +5,17 @@ module ActAsAdmin::Components
       resource_config = ActAsAdmin::Builder::ResourceConfig.new name
       list_config = ActAsAdmin::Builder::ListConfig.new
       yield(resource_config, list_config)
-      ActAsAdmin::Components::List.new(resource_config.find_formatters, list_config.actions)
+      ActAsAdmin::Components::List.new(resource_config.find_formatters, list_config)
     end
   end
 
   class List
-    attr_reader :formatters
-    attr_reader :actions
+    attr_reader :formatters, :list_config
+    delegate :actions, :to=>:list_config
 
-    def initialize formatters, actions
+    def initialize formatters, list_config
       @formatters = formatters
-      @actions = actions
+      @list_config = list_config
     end
-
-    def headers &block
-      formatters.each do |formatter|
-        yield(formatter.field)
-      end
-    end
-
-    def row &block
-      formatters.each do |field, formatter|
-        yield(field, formatter)
-      end
-
-    end
-
   end
 end

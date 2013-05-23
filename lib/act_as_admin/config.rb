@@ -33,17 +33,17 @@ module ActAsAdmin
       @resource_config.instance_eval(&block) if block_given?
     end
 
-    def page action=nil, opts={}, &block
-      if (action.nil?)
-        page = @pages[:default]
+    def page action, opts={}, &block
+      page = @pages[action] 
+
+      if page.nil?
+        page = ::ActAsAdmin::Builder::PageConfig.new(opts)
       else
-        page = @pages[action] ||= ::ActAsAdmin::Builder::PageConfig.new
+        page = ::ActAsAdmin::Builder::PageConfig.clone(page, opts)
       end
 
-      excluded_actions = (opts.delete :exclude_actions) || []
-      page.actions.reject!{|k,v| excluded_actions.include? k}
-      
       page.instance_eval(&block) if block_given?
+      @pages[action] = page
     end
 
   end

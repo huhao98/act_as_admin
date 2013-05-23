@@ -35,7 +35,7 @@ module ActAsAdmin::Builder
     end
 
     def resource_title
-      title_field = components.values.last[:title_field] || :to_s
+      title_field = components.values.last[:title] || :to_s
       resource.send(title_field.to_sym) if resource
     end
 

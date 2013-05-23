@@ -16,10 +16,6 @@ describe ActAsAdmin::Config do
   end
 
   describe "page" do
-    it "should yield default page to the block" do
-      expect{|b| config.page &b}.to yield_with_args(config.default_page)
-    end
-
     it "can yeild a new page for an action" do
       expect{|b| config.page(:index, &b)}.to yield_with_args(ActAsAdmin::Builder::PageConfig)
 
@@ -31,7 +27,6 @@ describe ActAsAdmin::Config do
   end
 
   describe "resource" do
-    
   end
 
 end

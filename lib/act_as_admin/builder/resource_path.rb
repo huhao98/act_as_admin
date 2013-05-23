@@ -67,7 +67,7 @@ module ActAsAdmin::Builder
         result = opts[:finder].call(id, parent)
         parent = result[:resource]
 
-        opts = opts.select{|k,v| [:title_field, :exclude].include? k}
+        opts = opts.select{|k,v| [:title, :exclude].include? k}
         memo.merge!(resource_name => result.merge(opts))
       end
       return ActAsAdmin::Builder::ResourceComponents.new(components)

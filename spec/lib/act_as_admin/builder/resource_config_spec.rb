@@ -15,7 +15,7 @@ describe ActAsAdmin::Builder::ResourceConfig do
     #  .to(:album){|album_id, product| product.albums.find(:album_id)}
     #  .to(:photo){|id, album| album.photoes.find(id)}
 
-    # /products/:product_id/albums/:album_id/photoes/:id, 
+    # /products/:product_id/albums/:album_id/photoes/:id,
     # Product.find(:id=>product_id).albums.find(:id=>album_id).photoes.find(:id=>id)
     #
     # parent_path(:story).next(:album) /stories/:story_id/albums/:album_id/photoes/:id
@@ -45,7 +45,7 @@ describe ActAsAdmin::Builder::ResourceConfig do
     end
   end
 
-  describe "field" do 
+  describe "field" do
     it "should set formattable attributes" do
       resource_config.field(:name).show
       expect(resource_config.formatters[:name].count).to eq(1)
@@ -104,55 +104,24 @@ describe ActAsAdmin::Builder::ResourceConfig do
     end
   end
 
-
-  describe "input_fields" do
-    it "will return all the input field names" do
-      resource_config.field(:name).input(:type=> :text_field)
-      resource_config.field(:content).input(:type=> :text_area)
-
-      expect(resource_config.input_fields).to eq([:name, :content])
-    end
-
-    it "will not return none input field names" do
-      resource_config.field(:name).show
-      resource_config.field(:content).input(:type => :text_area)
-
-      expect(resource_config.input_fields).to eq([:content])
-    end
+  specify "should assign values to data fields" do
+    data = {:name=>"blank"}.to_ostruct
+    resource_config.field(:name).assign{"test"}
+    resource_config.assign_fields(data)
+    expect(data.name).to eq("test")
   end
 
-  describe "input" do
-    it "should return the input option for given field" do
-      resource_config.field(:name).input(:type=>:text_field)
-      expect(resource_config.input_field(:name)).to eq(:type=>:text_field)
-    end
-  end
+  specify "should find formatters by actions and formats" do
+    resource_config.field(:name).show(:as=>:default).show(:format=>:csv, :as=>:csv)
 
-  describe "assign_fields" do
-    let(:data){{:name=>"blank"}.to_ostruct}
+    formatter = resource_config.find_formatters.first
+    expect(formatter.as).to eq(:default)
 
-    it "should assign values to data fields" do
-      resource_config.field(:name).assign{"test"}
-      resource_config.assign_fields(data)
-      expect(data.name).to eq("test")
-    end
-  end
+    formatter = resource_config.find_formatters(:format=>:csv).first
+    expect(formatter.as).to eq(:csv)
 
-  describe "find_formatters" do
-    specify do 
-      resource_config.field(:name).show(:as=>:default).show(:format=>:csv, :as=>:csv)
-
-      formatter = resource_config.find_formatters.first
-      #expect(formatter.field).to eq(:name)
-      expect(formatter.as).to eq(:default)
-
-      formatter = resource_config.find_formatters(:format=>:csv).first
-      expect(formatter.as).to eq(:csv)
-
-      p resource_config.formatters[:name].collect{|f| f.score :action=>:index, :format=>:csv}
-      formatter = resource_config.find_formatters(:action=>:index, :format=>:csv).first
-      expect(formatter.as).to eq(:csv)
-    end
+    formatter = resource_config.find_formatters(:action=>:index, :format=>:csv).first
+    expect(formatter.as).to eq(:csv)
   end
 
 end

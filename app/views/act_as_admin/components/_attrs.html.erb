@@ -1,7 +1,0 @@
-  <dl class="dl-horizontal multi-col">
-    <% page.data_columns.each{|field, options| 
-        name = field_name(field)
-        value = field_value(data, field, options)
-        concat(data_item name, value) unless options[:not_on_show] || false 
-      }%>
-  </dl>

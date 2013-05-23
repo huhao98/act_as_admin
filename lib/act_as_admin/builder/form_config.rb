@@ -3,6 +3,13 @@ module ActAsAdmin::Builder
 
     attr_reader :opts
 
+    def self.clone form_config, opts={}
+      new_form_config = form_config.clone
+      new_form_config.opts.merge!(opts)
+      return new_form_config
+    end
+
+
     def initialize opts={}, parent=nil
       opts.merge!(parent.opts) if parent
       @opts = opts

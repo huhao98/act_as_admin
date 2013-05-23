@@ -5,7 +5,7 @@ describe ActAsAdmin::Controller::BreadCrumb do
   
   def setup_controller params
     config = ActAsAdmin::Config.new(:model=>::Dummy, :resource_name=>"dummy")
-    config.resource{path(:dummies, :title_field=>:name)}
+    config.resource{path(:dummies, :title=>:name)}
 
     yield(config) if block_given?
     context = ActAsAdmin::Controller::Context.new(config, params.with_indifferent_access)
@@ -74,7 +74,7 @@ describe ActAsAdmin::Controller::BreadCrumb do
     it "should add resources breadcrums with parents" do
       parent.stub(:name=>"A Parent")
       controller = setup_controller(:action=>"index", :parent_id=>"parent_id") do |config|
-        config.resource_config.path(:parents, :title_field=>:name).to(:dummies)
+        config.resource_config.path(:parents, :title=>:name).to(:dummies)
       end
 
       controller.should_receive(:parents_path).with(no_args).and_return("/parents")
@@ -93,7 +93,7 @@ describe ActAsAdmin::Controller::BreadCrumb do
       dummy.stub(:title=>"A Dummy")
 
       controller = setup_controller(:action=>"index", :parent_id=>"parent_id", :id=>"dummy_id") do |config|
-        config.resource_config.path(:parents, :title_field=>:name).to(:dummies, :title_field=>:title)
+        config.resource_config.path(:parents, :title=>:name).to(:dummies, :title=>:title)
       end
 
       controller.should_receive(:parents_path).with(no_args).and_return("/parents")

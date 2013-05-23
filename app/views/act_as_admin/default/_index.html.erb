@@ -1,0 +1,3 @@
+<%= toolbar(@query_result)%>
+<%= data_grid(@context.list, @query_result.items, :query_params=>query_result_helper(@query_result))%>
+<%= paging(@query_result.items) %>

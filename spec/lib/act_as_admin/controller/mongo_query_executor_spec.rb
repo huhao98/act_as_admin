@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ActAsAdmin::Controller::MongoQueryExecutor do
 
-  let(:query){ActAsAdmin::Builder::Query.new}
+  let(:query){ActAsAdmin::Builder::QueryConfig.new}
   let(:from) do
     criteria = mock(:criteria, :paginate=>"results")
     criteria.stub(:where=>criteria, :order_by=>criteria)

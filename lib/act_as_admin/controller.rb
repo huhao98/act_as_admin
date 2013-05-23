@@ -44,16 +44,22 @@ module ActAsAdmin
         resource_name = admin_config.resource_name
 
         admin_config.instance_eval do
-          page :index do 
+          page :index, :content=>"/act_as_admin/default/index" do 
             header(:major, :text=>model_class.model_name.human)
             action(:new){new_resource_path}
             query do
+              query_from {model_class.all}
               query_path {|params| resources_path(params)}
               page 10
             end
+            
+            list do
+              action(:edit){|order| edit_resource_path(order)}
+              action(:delete, :method=>"delete"){|order| resource_path(order)}
+            end
           end
 
-          page :show do 
+          page :show, :content=>"/act_as_admin/default/show" do 
             header(:major, :text=>model_class.model_name.human)
             header(:minor){@context.resource_components.resource_title}
 
@@ -63,23 +69,23 @@ module ActAsAdmin
             list
           end
 
-          page :new do 
+          page :new, :content=>"/act_as_admin/default/new" do 
             header(:major, :text=>"New #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "New #{model_class.model_name.human}"}
 
             action(:cancel) {resources_path}
-            form(:as=>:resource_name) do
+            form(:as=>resource_name) do
               submit(:create, :method=>:post){resources_path}
             end
           end
 
-          page :edit do 
+          page :edit, :content=>"/act_as_admin/default/edit" do 
             header(:major, :text=>"Edit #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "Edit #{model_class.model_name.human}"}
 
             action(:cancel){resources_path}
             form(:as=>resource_name) do
-              submit(:edit, :method=>:put){|resource| resource_path(resource)}
+              submit(:update, :method=>:put){|resource| resource_path(resource)}
             end
           end
 

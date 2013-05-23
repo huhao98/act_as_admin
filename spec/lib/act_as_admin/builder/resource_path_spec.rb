@@ -161,10 +161,10 @@ describe ActAsAdmin::Builder::ResourcePath do
     end
 
     it "should have component options" do
-      resource_path.to(:albums, :title_field=>:name, :exclude=>[:index], :other=>"other")
+      resource_path.to(:albums, :title=>:name, :exclude=>[:index], :other=>"other")
 
       resource_components = resource_path.resource_components({"dummy_id"=>"dummy_id", "id"=>"album_id"})
-      expect(resource_components.components[:albums][:title_field]).to eq(:name)
+      expect(resource_components.components[:albums][:title]).to eq(:name)
       expect(resource_components.components[:albums][:exclude]).to eq([:index])
       expect(resource_components.components[:albums][:other]).to be_nil
     end
