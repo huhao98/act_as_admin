@@ -208,8 +208,9 @@ module BootstrapHelper
     text, url = args.slice!(0,2)
     options[:href] = url || '#'
     append_class_for_options(options,"btn")
+    icon = options.delete(:icon)
     content_tag(:a, options) do
-      concat bootstrap_icon(options[:icon]) if options[:icon]
+      concat bootstrap_icon(icon) if icon
       concat " #{text}" if text
     end
   end

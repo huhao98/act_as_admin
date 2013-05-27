@@ -30,11 +30,15 @@ module AdminFormHelper
       f.text_field("#{field}_input".to_sym)
     end
 
-    control_group(
-      f.label(field, :class=>"control-label"),
-      form_field,
-      errors: data.errors[field],
-      help: option[:help]
-    )
+    unless type == :hidden_field
+      control_group(
+        f.label(field, :class=>"control-label"),
+        form_field,
+        errors: data.errors[field],
+        help: option[:help]
+      )
+    else
+      form_field
+    end
   end
 end
