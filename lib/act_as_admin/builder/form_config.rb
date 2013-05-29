@@ -9,14 +9,17 @@ module ActAsAdmin::Builder
       return new_form_config
     end
 
-
     def initialize opts={}, parent=nil
       opts.merge!(parent.opts) if parent
       @opts = opts
     end
 
-    def action
-      @opts[:action]
+    def submit_label
+      @opts[:submit]
+    end
+
+    def cancel_label
+      @opts[:cancel]
     end
 
     def as
@@ -35,9 +38,18 @@ module ActAsAdmin::Builder
       @opts[:url]
     end
 
+    def cancel_url
+      @opts[:cancel_url]
+    end
+
     def submit name, opts={}, &url_proc
       opts.merge!(:url => url_proc) if block_given?
-      @opts = opts.merge(:action=>name).merge(@opts)
+      @opts = opts.merge(:submit=>name).merge(@opts)
+    end
+
+    def cancel name, opts={}, &url_proc
+      opts.merge!(:cancel_url => url_proc) if block_given?
+      @opts = opts.merge(:cancel=>name).merge(@opts)
     end
 
   end

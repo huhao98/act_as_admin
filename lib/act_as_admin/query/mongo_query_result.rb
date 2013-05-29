@@ -1,4 +1,5 @@
-module ActAsAdmin::Controller
+module ActAsAdmin::Query
+  
   class MongoQueryResult
 
     attr_reader :criteria, :query_config

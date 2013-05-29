@@ -18,8 +18,9 @@ module ActAsAdmin
       def register_model model_class, opts={}, &block
         include ::ActAsAdmin::Helpers::PathHelper
         include ::ActAsAdmin::Controller::Base
-        include ::ActAsAdmin::Controller::BreadCrumb
         include ::ActAsAdmin::Controller::Query
+        include ::ActAsAdmin::Controller::BreadCrumb
+        
 
         pattern = "act_as_admin/:action{.:locale,}{.:formats,}{.:handlers,}"
         append_view_path ::ActionView::FileSystemResolver.new("app/views", pattern)
@@ -48,7 +49,6 @@ module ActAsAdmin
             header(:major, :text=>model_class.model_name.human)
             action(:new){new_resource_path}
             query do
-              query_from {model_class.all}
               query_path {|params| resources_path(params)}
               page 10
             end
@@ -61,7 +61,7 @@ module ActAsAdmin
 
           page :show, :content=>"/act_as_admin/default/show" do 
             header(:major, :text=>model_class.model_name.human)
-            header(:minor){@context.resource_components.resource_title}
+            header(:minor){@context.resource_title}
 
             action(:edit){edit_resource_path(@resource)}
             action(:delete, :method=>"delete", :data=>{:confirm =>"你确定要删除吗?"}){resource_path(@resource)}
@@ -73,9 +73,9 @@ module ActAsAdmin
             header(:major, :text=>"New #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "New #{model_class.model_name.human}"}
 
-            action(:cancel) {resources_path}
             form(:as=>resource_name) do
               submit(:create, :method=>:post){resources_path}
+              cancel(:cancel){redirect_to_resources_path}
             end
           end
 
@@ -83,9 +83,9 @@ module ActAsAdmin
             header(:major, :text=>"Edit #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "Edit #{model_class.model_name.human}"}
 
-            action(:cancel){resources_path}
             form(:as=>resource_name) do
               submit(:update, :method=>:put){|resource| resource_path(resource)}
+              cancel(:cancel){|resource| resource_path(resource)}
             end
           end
 

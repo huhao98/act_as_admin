@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe DataGridHelper do
+describe ListHelper do
 
   it "should render a list" do
     self.should_receive(:field_name).with(:name).and_return("Name")
@@ -15,6 +15,6 @@ describe DataGridHelper do
       {:name=>"C"}.to_ostruct
     ]
 
-    html = list(list, items)
+    html = data_grid(list, items)
   end
 end

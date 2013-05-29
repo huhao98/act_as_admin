@@ -1,1 +1,9 @@
-<%= data_panel @context.list, @resource %>
+<%= panel :title=>:details do%>
+  <%= data_panel @context.list, @resource, :class=>"col2" %>
+  
+  <% @context.named_lists do |name, list| %>
+    <h3><%=name%></h3>
+    <%= data_grid(list, @resource.send(list.scope))%>
+  <%end%>
+
+<% end %>

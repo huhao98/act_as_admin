@@ -17,5 +17,9 @@ module ActAsAdmin::Components
       @formatters = formatters
       @list_config = list_config
     end
+
+    def scope 
+      list_config.opts[:scope]
+    end
   end
 end

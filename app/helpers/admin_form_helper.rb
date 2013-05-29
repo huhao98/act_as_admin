@@ -4,38 +4,35 @@ module AdminFormHelper
   def render_form form, resource
     url = form.url
     url = self.instance_exec(resource, &url) if url.is_a?(Proc)
-
     form_for(resource, :url=>url, :method=>form.method, :as=>form.as, :html =>{ :class => 'form-horizontal'}) do |f|
-      form.input_fields.each do |field, option| 
-        concat render_field(f, resource, field, option)
+      concat form.input_fields.collect{|field, option| control_group(f, field, option.merge(:errors=>errors_of(resource, field)))}.join("\n").html_safe
+      concat form_action(f, form_action_options(form, resource))
+    end
+  end
+
+  private
+
+  def form_action_options form, resource
+    actions = {:submit=>form.submit_label}
+    if form.cancel_url.is_a?(Proc)
+      cancel_url = self.instance_exec(resource, &form.cancel_url)
+      actions.merge!(:cancel=>[form.cancel_label || "Cancel", cancel_url])
+    end
+    return actions
+  end
+
+  def errors_of resource, field
+    nested_fields = field.to_s.split(".")
+    if (nested_fields.size == 2)
+      data = resource.send(nested_fields[0].to_sym)
+      if data
+        return data.errors[nested_fields[1].to_sym]
+      else
+        return resource.errors[nested_fields[0]]
       end
-
-      concat form_action(f.submit(form.action, :class=>'btn btn-primary'))
+    else
+      return resource.errors[field.to_sym]
     end
   end
 
-  def render_field f, resource, field, option
-    type = option[:type].to_sym
-    form_field = case type
-    when :text_field, :text_area, :password_field, :file_field, :hidden_field, :email_field, \
-      :number_field, :phone_field, :range_field, :search_field, :telephone_field, :url_field
-      f.send(type, field)
-    when :checkbox
-      vals = option[:values] || %w[1 0]
-      f.checkbox(field, option, vals[0], vals[1])
-    when :radio_button
-      f.radio_button(field, option[:value], option)
-    when :select_field
-      f.select(field, option[:values])
-    when :date_field
-      f.text_field("#{field}_input".to_sym)
-    end
-
-    control_group(
-      f.label(field, :class=>"control-label"),
-      form_field,
-      errors: resource.errors[field],
-      help: option[:help]
-    )
-  end
 end

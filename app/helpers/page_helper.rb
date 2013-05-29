@@ -1,12 +1,25 @@
 # encoding: utf-8
 module PageHelper
 
+  # render content_header section which includes page header and actions
+  def content_header
+    return unless @context
+
+    headers = @context.page.headers
+    actions = @context.page.actions
+    data =  @resource
+    content_tag(:div, :class=>"content-header") do
+      concat content_tag(:div, page_header(headers), :class=>"pull-left")
+      concat content_tag(:div, action_group(actions, :class=>"btn", :data_item=>data), :class=>"pull-right") if actions
+    end
+  end
+
   # Render page header
   def page_header headers
     return if headers.empty?
     major = headers[:major]
     minor = headers[:minor]
-    content_tag(:h2) do
+    content_tag(:h3) do
       concat(resolve(major[:text])) if major
       if minor
         concat(" ")
@@ -45,6 +58,21 @@ module PageHelper
     end
   end
 
+  def panel opts={}, &block
+    content_tag(:div, :class=>"panel") do
+      title = opts.delete :title
+      concat(content_tag(:div, :class=>"panel-title"){
+        concat content_tag(:h5, title)
+      }) if title.present?
+
+      content_cls = ["panel-content"]
+      content_cls << "nopadding" if opts.delete(:nopadding)
+      concat(content_tag(:div, :class=>content_cls.join(" ")){
+        yield() if block_given?  
+      })
+    end
+  end
+
   def status_label data
     {
       -1=> content_tag(:span, "未开始", :class=>"label"),
@@ -52,9 +80,5 @@ module PageHelper
       1=> content_tag(:span, "已结束", :class=>"label label-important")
     }[data <=> DateTime.now]
   end
-
-
-
-
   
 end

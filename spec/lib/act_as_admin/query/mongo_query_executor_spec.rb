@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActAsAdmin::Controller::MongoQueryExecutor do
+describe ActAsAdmin::Query::MongoQueryExecutor do
 
   let(:query){ActAsAdmin::Builder::QueryConfig.new}
   let(:from) do
@@ -8,7 +8,7 @@ describe ActAsAdmin::Controller::MongoQueryExecutor do
     criteria.stub(:where=>criteria, :order_by=>criteria)
     criteria
   end
-  let(:query_executor){ActAsAdmin::Controller::MongoQueryExecutor.new(from, query)}
+  let(:query_executor){ActAsAdmin::Query::MongoQueryExecutor.new(from, query)}
 
   describe "order" do
     it "should order results by request parameters" do

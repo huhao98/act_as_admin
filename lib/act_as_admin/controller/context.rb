@@ -2,20 +2,33 @@ module ActAsAdmin::Controller
   class Context
     
     attr_reader :config, :action, :page, :resource_components
-
     delegate :model, :resource_name, :resource_config, :to=>:config
-    delegate :resources_path, :resource_path, :to=>:resource_components
+    delegate  :nav, :resource, :collection, :resources, :resource_title, :root_resource_name, :to=>:resource_components
 
     def initialize config, params
       @action = params[:action].to_sym
+      @page = config.pages[@action]
+
+      case @action
+      when :create
+        @page ||= config.pages[:new]
+      when :update
+        @page ||= config.pages[:edit]
+      end
+
       @config = config
-      @page = config.pages[@action] || config.default_page
       @resource_components = resource_config.resource_components(params)
     end
 
     def lists 
       return unless page.lists.present?
       page.lists.keys.collect{|name| list(name)}
+    end
+
+    def named_lists &block
+      page.lists.except(:default).each do |name, list_config|
+        yield(name, list(name))
+      end
     end
 
     def list name=nil

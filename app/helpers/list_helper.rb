@@ -1,15 +1,15 @@
 module ListHelper
 
-  def data_panel list, item
+  def data_panel list, item, opts={}
     formatters = list.formatters
     contents = formatters.each.collect do |formatter|
-      content_tag(:div, :class=>"item") do
-        concat(content_tag(:dt, field_name(formatter.field)))
-        concat(content_tag(:dd, formatter.value_of(item, self)))
+      content_tag(:li) do
+        concat(content_tag(:span, field_name(formatter.field), :class=>:head))
+        concat(content_tag(:span, formatter.value_of(item, self)))  
       end
     end
-
-    content_tag(:dl, contents.join("\n").html_safe, :class => "dl-horizontal") 
+    cls = ["list-data", opts[:class]].compact.join(" ")
+    content_tag(:ul, contents.join("\n").html_safe, :class => cls) 
   end
 
   def data_grid list, items, opts={}

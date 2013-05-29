@@ -7,7 +7,7 @@ module ActAsAdmin::Controller
     end
 
     def breadcrumbs
-      @context.resource_components.nav do |parents, resource_name, component_opts|
+      @context.nav do |parents, resource_name, component_opts|
         names = parents.keys << resource_name
         exclude = component_opts[:exclude] || []
 

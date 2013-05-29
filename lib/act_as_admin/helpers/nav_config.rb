@@ -5,6 +5,7 @@ module ActAsAdmin::Helpers
 
     def configure &block
       yield(self)
+      return self
     end
 
     def nav name, opts={}, &block
@@ -12,6 +13,13 @@ module ActAsAdmin::Helpers
       opts = opts.merge(:url=>block) if block_given?
       @nav_items[name] = opts
     end
+
+    def group name, opts={}, &block
+      group_config = NavConfig.new
+      yield(group_config)
+      @nav_items[name] = opts.merge(:nav=>group_config)
+    end
+    
   end
 
 end
