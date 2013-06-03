@@ -46,30 +46,31 @@ module BootstrapFormHelper
     opts = opts.merge(:class=>[cls, size].compact.join(" "))
     opts = opts.merge(:title=>help, :"data-toggle"=>"tooltip", :"data-trigger"=>"focus", :"data-placement"=>"bottom") if help.present?
 
-    field_of(form, field) do |form, field|
+    field_of(form, field) do |f, field|
       case type
       when :select
-        form.select(field, selection_values(opts), opts)
+        f.select(field, selection_values(opts), opts)
 
       when :radio_button
-        render_radio_button(form, field, selection_values(opts))
+        render_radio_button(f, field, selection_values(opts))
 
       when :check_box
-        render_check_box(form, field, selection_values(opts))  
+        render_check_box(f, field, selection_values(opts))  
 
       else
-        form.send(type.to_sym, field, opts)
+        f.send(type.to_sym, field, opts)
       end
     end
   end
 
 
   def field_of form, field
+
     nested_fields = field.to_s.split(".")
     if (nested_fields.size == 2)
-      form.fields_for(nested_fields[0].to_sym) do |fields|
+      form.fields_for(nested_fields[0].to_sym) {|fields|
         yield(fields, nested_fields[1].to_sym)
-      end
+      }
     else
       yield(form, field)
     end

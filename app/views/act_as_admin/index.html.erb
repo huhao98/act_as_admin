@@ -1,2 +1,9 @@
-<% content :main%>
+<% content_for :main do %>
+
+  <%= toolbar(@query_result)%>
+  <%= data_grid(@context.list, @query_result.items, :query_params=>query_result_helper(@query_result))%>
+  <%= paging(@query_result.items) %>
+  
+<% end %>
+
 <%= render :file=> '/layouts/act_as_admin' %>

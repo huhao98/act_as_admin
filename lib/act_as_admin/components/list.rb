@@ -21,5 +21,9 @@ module ActAsAdmin::Components
     def scope 
       list_config.opts[:scope]
     end
+
+    def model
+      list_config.opts[:model]
+    end
   end
 end

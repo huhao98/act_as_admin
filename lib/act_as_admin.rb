@@ -6,6 +6,10 @@ module ActAsAdmin
   autoload :Controller, 'act_as_admin/controller'
   autoload :Config, 'act_as_admin/config'
   autoload :Components, 'act_as_admin/components/list'
+  module Builder
+    autoload :Dsl, 'act_as_admin/builder/dsl'
+    autoload :QueryConfig, 'act_as_admin/builder/query_config'
+  end
   module Helpers
     autoload :PathHelper, 'act_as_admin/helpers/path_helper'
     autoload :QueryParams, 'act_as_admin/helpers/query_params'

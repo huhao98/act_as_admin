@@ -1,2 +1,8 @@
-<% content %>
+<% content_for :main do %>
+
+  <%= panel :title=>"Edit", :nopadding=>true do %>
+    <%= render_form @context.form, @resource%>
+  <%end%>
+  
+<% end %>
 <%= render :file=> '/layouts/act_as_admin' %>

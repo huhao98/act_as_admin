@@ -4,6 +4,12 @@ module ActAsAdmin::Query
     attr_reader :query, :from
     attr_reader :query_params, :query_meta_data
 
+    def self.run &block
+      query_config = ActAsAdmin::Builder::QueryConfig.new
+      yield(query_config)
+      ActAsAdmin::Query::MongoQueryExecutor.new(query_config.from.call, query_config)
+    end
+
     def initialize(from, query)
       @from = from
       @query = query

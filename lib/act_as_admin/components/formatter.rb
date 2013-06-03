@@ -36,7 +36,8 @@ module ActAsAdmin::Components
 
       case as
       when :date_time
-        context.l data.send(field.to_sym), :default=>:long
+        dt = data.send(field.to_sym)
+        context.l(dt, :default=>:long) unless dt.nil?
       else
         field_value(field, data)
       end

@@ -51,13 +51,6 @@ module PageHelper
     end
   end
 
-  def content section=nil
-    section ||= :main
-    content_for section do
-      concat(render :partial=>@context.page.opts[:content])
-    end
-  end
-
   def panel opts={}, &block
     content_tag(:div, :class=>"panel") do
       title = opts.delete :title

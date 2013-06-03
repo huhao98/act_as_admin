@@ -30,7 +30,7 @@ module ListHelper
    
     headers = row(formatters, :cell=>:th) do |formatter|
       field = formatter.field
-      order_fields.include?(field) ? render_order(query_params, field) : field_name(field)
+      order_fields.include?(field) ? render_order(query_params, field) : field_name(field, :model=>list.model)
     end
 
     body = row(formatters, :cell=>:td, :items=>items) do |formatter, item|

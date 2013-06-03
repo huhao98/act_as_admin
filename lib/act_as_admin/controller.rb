@@ -45,7 +45,7 @@ module ActAsAdmin
         resource_name = admin_config.resource_name
 
         admin_config.instance_eval do
-          page :index, :content=>"/act_as_admin/default/index" do 
+          page :index do 
             header(:major, :text=>model_class.model_name.human)
             action(:new){new_resource_path}
             query do
@@ -59,7 +59,7 @@ module ActAsAdmin
             end
           end
 
-          page :show, :content=>"/act_as_admin/default/show" do 
+          page :show do 
             header(:major, :text=>model_class.model_name.human)
             header(:minor){@context.resource_title}
 
@@ -69,7 +69,7 @@ module ActAsAdmin
             list
           end
 
-          page :new, :content=>"/act_as_admin/default/new" do 
+          page :new do 
             header(:major, :text=>"New #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "New #{model_class.model_name.human}"}
 
@@ -79,7 +79,7 @@ module ActAsAdmin
             end
           end
 
-          page :edit, :content=>"/act_as_admin/default/edit" do 
+          page :edit do 
             header(:major, :text=>"Edit #{model_class.model_name.human}")
             breadcrumb {add_breadcrumb "Edit #{model_class.model_name.human}"}
 

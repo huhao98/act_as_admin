@@ -16,7 +16,9 @@ module ActAsAdmin::Controller
         @page ||= config.pages[:edit]
       end
 
+      @page ||= ActAsAdmin::Builder::PageConfig.new
       @config = config
+      
       @resource_components = resource_config.resource_components(params)
     end
 
