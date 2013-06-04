@@ -20,7 +20,7 @@ describe ActAsAdmin::Controller::Context do
       end
 
       form = context.form
-      expect(form.action).to eq(:new)
+      expect(form.submit_label).to eq(:new)
       expect(form.as).to eq(:dummy)
       expect(form.method).to eq(:post)
       expect(form.url).to eq("dummies_url")

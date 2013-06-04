@@ -87,29 +87,26 @@ describe ActAsAdmin::Controller do
 
       specify "new page" do
         page = DummyController.admin_config.pages[:new]
-        expect(page.actions.size).to eq(1)
-        expect(page.actions[:cancel]).not_to be_nil
         expect(page.breadcrumbs.size).to eq(1)
       end
 
       specify "new page has default form" do
         form_config = DummyController.admin_config.pages[:new].forms[:default]
         expect(form_config.as).to eq("dummy")
-        expect(form_config.action).to eq(:create)
+        expect(form_config.submit_label).to eq(:create)
+        expect(form_config.cancel_label).to eq(:cancel)
         expect(form_config.method).to eq(:post)
       end
-
       specify "edit page" do
         page = DummyController.admin_config.pages[:edit]
-        expect(page.actions.size).to eq(1)
-        expect(page.actions[:cancel]).not_to be_nil
         expect(page.breadcrumbs.size).to eq(1)
       end
 
       specify "edit page has default form" do
         form_config = DummyController.admin_config.pages[:edit].forms[:default]
         expect(form_config.as).to eq("dummy")
-        expect(form_config.action).to eq(:update)
+        expect(form_config.submit_label).to eq(:update)
+        expect(form_config.cancel_label).to eq(:cancel)
         expect(form_config.method).to eq(:put)
       end
     end
