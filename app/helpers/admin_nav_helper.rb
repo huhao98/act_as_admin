@@ -1,29 +1,88 @@
 module AdminNavHelper
 
   def navbar opts={}
-    bootstrap_navbar(opts) do
-      nav_items = opts[:nav_items] || Rails.configuration.nav.nav_items
-      nav_items.each do |key, opts|
-        if opts[:resources].nil?
-          concat(nav_item key, opts)
-        else
-          concat(nav_group key, opts[:resources])
+    items = ActAsAdmin::Components::Nav.render do |r|
+      r.item do |key, cfg, active_opts|
+        nav_on(key, cfg) do |url, active|
+          html_opts = {:class=>:active} if active
+          active_opts[:active] = active
+          content_tag :li, link_to(nav_title(key), url), html_opts
         end
       end
+
+      r.group do |key, cfg, contents, active|
+        cls = :active if active
+        bootstrap_dropdown_menu(nav_title(key), cls){concat(contents.join("\n").html_safe)}
+      end
+
+      r.verify_role{|roles| has_role(roles)}
+    end
+    bootstrap_navbar(opts){items.join("\n").html_safe}
+  end
+  
+
+  def sidebar_nav cfg={}
+    items = ActAsAdmin::Components::Nav.render do |r|
+      r.item do |key, cfg, active_opts|
+        nav_on(key, cfg) do |url, active|
+          active_opts[:active] = active
+          sidebar_item(active) do 
+            concat(link_to(url){
+              concat content_tag(:i, "", :class=>cfg[:icon]) if cfg[:icon]
+              concat content_tag(:span, nav_title(key))
+            })
+          end
+        end
+      end
+
+      r.group do |key, cfg, contents, active|
+        group_id = "#{key}_group"
+        collapse = active ? "in" : "out" 
+        sidebar_item(active) do
+          concat(link_to("javascript:void(0)", :"data-toggle"=>"collapse", :"data-target"=>"##{group_id}"){
+            concat content_tag(:i, "", :class=>cfg[:icon]) if cfg[:icon]
+            concat content_tag(:span, nav_title(key))
+            concat content_tag(:label, contents.size, :class=>"pull-right label")
+          })
+          concat(content_tag(:div, :id=>group_id, :class=>"subnav collapse #{collapse}"){
+            content_tag :ul, contents.join("\n").html_safe
+          })
+        end
+      end
+
+      r.verify_role{|roles| has_role(roles)}
+    end
+
+    content_tag(:div, :id=>"sidebar-nav") do
+      content_tag(:ul, items.join("\n").html_safe, :id=>"dashboard-menu") 
     end
   end
 
+  def sidebar_item active
+    html_opts = {}
+    if (active)
+      html_opts = {:class=>:active}
+      pointer = <<-HTML
+        <div class="pointer">
+          <div class="arrow"></div>
+          <div class="arrow_border"></div>
+        </div>
+      HTML
+    end
+    content_tag(:li, html_opts) do
+      concat pointer.html_safe if pointer
+      yield()
+    end
+  end
+
+
   private
 
-  def nav_item key, cfg={}
-    if cfg[:with_role].present? && current_user && current_user.respond_to?(:roles)
-      return if (current_user.roles & cfg[:with_role]).blank?
-    end
-
-    nav_on(key, cfg) do |url, active|
-      opts = {:class=>:active} if active
-      yield(active) if block_given?      
-      content_tag :li, link_to(nav_title(key), url), opts
+  def has_role roles
+    if current_user && current_user.respond_to?(:roles)
+      return (current_user.roles & roles).present?
+    else
+      return true
     end
   end
 
@@ -31,17 +90,9 @@ module AdminNavHelper
     key.to_s.singularize.classify.constantize.model_name.human rescue key.to_s.capitalize
   end
 
-  def nav_group key, resources
-    active = false
-    nav_items = resources.collect do |resource|
-      nav_item(*[resource].flatten.compact){|item_active| active ||= item_active}
-    end
-    cls = :active if active
-    bootstrap_dropdown_menu(key, cls){concat(nav_items.join("\n").html_safe)}
-  end
-
   def nav_on resource, cfg={}
     opts = {:controller=>resource}.merge(cfg)
+
     url = opts[:url]
     url = instance_exec(&url) if url.is_a?(Proc)
     url ||= url_for(opts.slice(:controller, :action, :id))
@@ -51,17 +102,13 @@ module AdminNavHelper
       :action=>opts[:action] && params[:action],
       :id=>opts[:id] && params[:id]
     }.reject{|k,v| v.nil?}
-    active = (url == url_for(args))
 
-    yield(url,active) if block_given?
+    yield(url,(url == url_for(args))) if block_given?
   end
 
   def current_resource
     resource = params[:controller]
-    if (@context && @context.parents.present?)
-      resource_name = @context.parents.first[1][:resource_name]
-      resource = resource_name.to_s.pluralize if resource_name
-    end
+    resource = @context.root_resource_name if (@context)
     return resource
   end
 end

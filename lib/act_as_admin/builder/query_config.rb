@@ -1,9 +1,16 @@
 module ActAsAdmin::Builder
-  class Query
+  class QueryConfig
     include ::ActAsAdmin::Builder::Dsl
-    attr_reader :path_proc, :per_page, :from, :opts 
+    
+    attr_reader :path_proc, :per_page, :from, :opts
     field :filters, :key=> :field, :proc => :condition
     field :orders, :key=> :field
+
+    def self.clone query_config, opts={}
+      new_query_config = query_config.clone
+      new_query_config.opts.merge!(opts)
+      return new_query_config
+    end
 
     def initialize opts={}
       @opts = opts
@@ -13,6 +20,10 @@ module ActAsAdmin::Builder
       return opts[:as]
     end
 
+    def page per_page
+      @per_page = per_page
+    end 
+
     def query_from &from
       @from = from
     end
@@ -21,10 +32,6 @@ module ActAsAdmin::Builder
     def query_path &block
       @path_proc = block
     end
-
-    def page per_page
-      @per_page = per_page
-    end   
 
     def default_order
       default = orders.select{|k,v| v[:default]}

@@ -6,19 +6,29 @@ module DummyModels
   extend ActiveSupport::Concern
 
   included do
-    let(:dummy){::Dummy.new}
-    let(:parent){parent = ::Parent.new; parent.stub(:title=>"A Parent"); parent}
-  end
 
-  module ClassMethods
-    def setup_context
-      let(:config){ActAsAdmin::Config.new(:model=>::Dummy, :resource_name=>"dummy")}
-      let(:context){ActAsAdmin::Controller::Context.new(config, {:action=>:some_action})}
+    let(:dummy) do
+      dummy = Dummy.new
+      dummy.name = "A Dummy"
+      dummy
     end
 
-    def setup_config
-      let(:config){ActAsAdmin::Config.new(:model=>::Dummy, :resource_name=>"dummy")}
+    let(:dummy_collection){mock("Dummies", :find=>dummy)}
+
+    let(:parent) do
+      parent = ::Parent.new;
+      parent.title = "A Parent"
+      parent.stub(:dummies=>dummy_collection)
+      parent
     end
+
+    let(:parent_collection){mock("Parents", :find=>parent)}
+
+    before :each do
+      Dummy.stub(:all=>dummy_collection, :new=>dummy)
+      Parent.stub(:all=>parent_collection)
+    end
+
   end
 
 end

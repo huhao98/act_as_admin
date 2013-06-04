@@ -1,8 +1,14 @@
-module ActAsAdmin::Controller
+module ActAsAdmin::Query
 
   class MongoQueryExecutor
     attr_reader :query, :from
     attr_reader :query_params, :query_meta_data
+
+    def self.run &block
+      query_config = ActAsAdmin::Builder::QueryConfig.new
+      yield(query_config)
+      ActAsAdmin::Query::MongoQueryExecutor.new(query_config.from.call, query_config)
+    end
 
     def initialize(from, query)
       @from = from
@@ -48,7 +54,7 @@ module ActAsAdmin::Controller
     end
 
     def result
-      return ActAsAdmin::Controller::MongoQueryResult.new(from, query, 
+      return ActAsAdmin::Query::MongoQueryResult.new(from, query, 
         :query_params=>@query_params, :meta_data=>@query_meta_data, :page=>@page)
     end
 

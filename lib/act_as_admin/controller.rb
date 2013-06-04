@@ -18,8 +18,9 @@ module ActAsAdmin
       def register_model model_class, opts={}, &block
         include ::ActAsAdmin::Helpers::PathHelper
         include ::ActAsAdmin::Controller::Base
-        include ::ActAsAdmin::Controller::BreadCrumb
         include ::ActAsAdmin::Controller::Query
+        include ::ActAsAdmin::Controller::BreadCrumb
+        
 
         pattern = "act_as_admin/:action{.:locale,}{.:formats,}{.:handlers,}"
         append_view_path ::ActionView::FileSystemResolver.new("app/views", pattern)
@@ -41,50 +42,53 @@ module ActAsAdmin
 
       def config_defaults admin_config, opts={}
         model_class = admin_config.model
-        title_field = admin_config.opts[:title_field] || :to_s
+        resource_name = admin_config.resource_name
 
         admin_config.instance_eval do
-          page :default do |p|
-            p.header(:major, :text=>model_class.model_name.human)
-            p.header(:minor){@resource.send(title_field) if @resource}            
-            p.breadcrumb(:resources){[model_class.model_name.human, resources_path] unless @context.exclude_nested_index?}
-          end
-
-          index_page do |p|
-            p.action(:new){new_resource_path}
-            p.data_action(:edit){|resource| edit_resource_path(resource)}
-            p.data_action(:delete, :method=>"delete", :data=>{:confirm =>"你确定要删除吗?"}){|resource| resource_path(resource)}
-            query do |q|
-              q.query_path {|params| resources_path(params)}
-              q.page 10
+          page :index do 
+            header(:major, :text=>model_class.model_name.human)
+            action(:new){new_resource_path}
+            query do
+              query_path {|params| resources_path(params)}
+              page 10
+            end
+            
+            list do
+              action(:edit){|order| edit_resource_path(order)}
+              action(:delete, :method=>"delete"){|order| resource_path(order)}
             end
           end
 
-          show_page do |p|
-            p.breadcrumb(:resource){[ @resource.send(title_field), resource_path(@resource)]}
+          page :show do 
+            header(:major, :text=>model_class.model_name.human)
+            header(:minor){@context.resource_title}
 
-            p.action(:edit){edit_resource_path(@resource)}
-            p.action(:delete, :method=>"delete", :data=>{:confirm =>"你确定要删除吗?"}){resource_path(@resource)}
+            action(:edit){edit_resource_path(@resource)}
+            action(:delete, :method=>"delete", :data=>{:confirm =>"你确定要删除吗?"}){resource_path(@resource)}
+
+            list
           end
 
-          new_page do |p|
-            p.breadcrumb("New #{model_class.model_name.human}")
+          page :new do 
+            header(:major, :text=>"New #{model_class.model_name.human}")
+            breadcrumb {add_breadcrumb "New #{model_class.model_name.human}"}
 
-            p.action(:cancel){resources_path}
-            form do |f|
-              f.action(:new, :method=>:post){resources_path}
+            form(:as=>resource_name) do
+              submit(:create, :method=>:post){resources_path}
+              cancel(:cancel){redirect_to_resources_path}
             end
           end
 
-          edit_page do |p|
-            p.breadcrumb(:resource){[ @resource.send(title_field), resource_path(@resource)]}
-            p.breadcrumb("Edit #{model_class.model_name.human}")
+          page :edit do 
+            header(:major, :text=>"Edit #{model_class.model_name.human}")
+            breadcrumb {add_breadcrumb "Edit #{model_class.model_name.human}"}
 
-            p.action(:cancel){resource_path(@resource)}
-            form do |f|
-              f.action(:edit, :method=>:put){|resource| resource_path resource}
+            form(:as=>resource_name) do
+              submit(:update, :method=>:put){|resource| resource_path(resource)}
+              cancel(:cancel){|resource| resource_path(resource)}
             end
           end
+
 
         end
       end

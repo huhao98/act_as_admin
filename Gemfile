@@ -10,6 +10,7 @@ gem 'simplecov', :require => false
 gem 'simplecov-rcov', :require => false
 
 group :test, :development do
+  gem 'hash-to-ostruct'
   gem 'rake'
   gem 'rspec-rails', '~> 2.11.3'
 end

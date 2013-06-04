@@ -7,42 +7,48 @@ module ActAsAdmin::Controller
     end
 
     def breadcrumbs
-      @context.parents.reduce([]) do |parents, resource|
-        append_resource_breadcrumbs parents, resource[0], resource[1][:title_field] || :to_s
-        parents << resource
-      end
-      append_breadcrumbs @context.page.breadcrumbs
-    end
+      @context.nav do |parents, resource_name, component_opts|
+        names = parents.keys << resource_name
+        exclude = component_opts[:exclude] || []
 
-    private
-
-    def append_resource_breadcrumbs parents, resource, title_field
-      resource_name = @context.resource_name(resource)
-      resources_url = @context.path_for(:resource=>resource_name, :parents=>parents){|helper, *args| 
-        self.send(helper.to_sym, *args)
-      }
-      resource_url = @context.path_for(:resource=>resource_name, :parents=>parents, :singular=>true){|helper, *args|
-        self.send(helper.to_sym, *(args+[resource]))
-      }
-
-      add_breadcrumb resource.class.model_name.human, resources_url
-      add_breadcrumb resource.send(title_field), resource_url
-    end
-
-    def append_breadcrumbs breadcrumbs
-      breadcrumbs.each_pair do |name, opts|
-        link = opts[:link]
-        if (link.is_a? Proc)
-          path = self.instance_exec(&link)
-          next if path.nil?
-          if (path.respond_to? :each)
-            name = path[0];
-            path=path[1]
-          end
+        unless (component_opts[:collection].nil? || exclude.include?(:index))
+          append_collection_breadcrumb(names, parents.values, component_opts)
         end
-        add_breadcrumb *[name, path].compact
+
+        resource = component_opts[:resource]
+        unless (resource.nil? || exclude.include?(:show))
+          append_resource_breadcrumb(names, resource, parents.values, component_opts)
+        end
       end
+
+      if @context.page.breadcrumbs.present?
+        @context.page.breadcrumbs.each do |proc|
+          self.instance_exec(&proc)
+        end
+      end
+
     end
+
+    private 
+
+    def append_collection_breadcrumb names, parents, opts
+      helper = names.flatten.compact.join("_").pluralize
+      url = self.send("#{helper}_path".to_sym, *parents)
+
+      model_class = opts[:model] || names.last.to_s.singularize.classify.constantize
+      add_breadcrumb model_class.model_name.human, url
+    end
+
+    def append_resource_breadcrumb names, resource, parents, opts
+      helper = names.flatten.compact.join("_").singularize
+      args = parents << resource
+      url = self.send("#{helper}_path".to_sym, *args)
+
+      title_field = opts[:title] || :to_s
+      title = resource.send(title_field.to_sym)
+      add_breadcrumb title, url
+    end
+
 
   end
 end

@@ -1,6 +1,12 @@
 <% content_for :main do %>
-<%= render :partial=>"/act_as_admin/components/attrs", :locals=>{:data=>@resource, :page=>@context.page}%>
-<%= render :partial=>@context.page.partial if @context.page.partial%>
-<% end %>
 
+  <%= panel :title=>:details do%>
+    <%= data_panel @context.list, @resource, :class=>"col2" %>
+    <% @context.named_lists do |name, list| %>
+      <h3><%=name%></h3>
+      <%= data_grid(list, @resource.send(list.scope))%>
+    <%end%>
+  <% end %>
+
+<% end %>
 <%= render :file=> '/layouts/act_as_admin' %>
