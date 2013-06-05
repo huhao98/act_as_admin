@@ -290,9 +290,9 @@ module BootstrapHelper
   #   bootstrap_label('badges text', :info)
   # => <span class="badges badges-info">badges text</span>
   # </tt>
-  def bootstrap_badges *args
+  def bootstrap_badge *args
     text, type = args.slice!(0,2)
-    bootstrap_widget text, :badges, type, *args
+    bootstrap_widget text, :badge, type, *args
   end
 
   # Render a bootstrap alert component
