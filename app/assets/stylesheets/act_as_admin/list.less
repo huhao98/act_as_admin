@@ -1,0 +1,47 @@
+.table-data{
+  font-size: 0.9em;
+  border: 1px solid #eaeaea;
+  border-bottom-color: #d8d8d8;
+  th{
+    .gradientBar(#fafafa, #eaeaea, @grayDark, none);
+    border: 1px solid #eaeaea;
+    border-bottom-color: #d8d8d8;
+  }
+}
+
+
+ul.list-data{
+  list-style: none;
+  margin: 0 0 1em 0;
+  li{
+    margin: 0.5em 0;
+    > span{
+      margin-left: 0.5em;
+      &.head{
+        width: 100px;
+        display: inline-block;
+        text-align: right;
+        color: #997;
+        &:after{
+          content: ":";
+        }
+      }
+    }
+  }
+}
+
+ul.col3{
+  .clearfix;
+  li{
+    width: 33%;
+    float: left;
+  }
+}
+
+ul.col2{
+  .clearfix;
+  li{
+    width: 50%;
+    float: left;
+  }
+}

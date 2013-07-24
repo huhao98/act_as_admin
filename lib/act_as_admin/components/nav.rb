@@ -8,7 +8,7 @@ module ActAsAdmin::Components
       def render nav_items=nil
         nav = ActAsAdmin::Components::Nav.new
         yield(nav)
-        nav_items ||= Rails.configuration.nav.nav_items
+        nav_items ||= Rails.configuration.nav.nav_items || []
         nav_items.collect do |k, cfg|
           nav.render_item k,cfg
         end

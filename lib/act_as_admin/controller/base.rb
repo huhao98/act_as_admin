@@ -12,6 +12,8 @@ module ActAsAdmin::Controller
     def create
       respond_to do |format|
         if @resource.save
+          # depends on configuration, redirect_to_resources_path will redirect to 
+          # either parent's resource path or the nested resoruces path
           format.html { redirect_to redirect_to_resources_path, notice: 'Successfully created' }
         else
           format.html { render action: "new" }

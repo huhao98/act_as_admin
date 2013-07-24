@@ -8,6 +8,7 @@ gemspec
 gem 'nokogiri', '>= 1.5.0'
 gem 'simplecov', :require => false
 gem 'simplecov-rcov', :require => false
+gem 'bootstrap_rails_helper', :path=>"../bootstrap_rails_helper"
 
 group :test, :development do
   gem 'hash-to-ostruct'
