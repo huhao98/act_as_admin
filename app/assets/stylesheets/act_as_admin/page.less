@@ -1,0 +1,200 @@
+
+//@baseBorderRadius: 0;
+@pageBgColor: #f5f5f0;
+@contentBgColor: #fff;
+@contentBorderColor: #dae3e9;
+@navColor : #7f8c9a;
+@navActiveColor: darken(@navColor, 20%);
+@sideBarWidth: 250px;
+
+body{
+  padding-top: 40px;
+  
+}
+
+.navbar{
+  .caret{
+    border-top-color: #999;
+  }
+}
+
+.alert{
+  margin-bottom: 0px;
+}
+
+dd, dt {
+  min-width: 10px;
+}
+
+.act_as_admin{
+  background-color: @pageBgColor;
+
+  #sidebar-nav {
+    position: absolute;
+    width: @sideBarWidth;
+    float: left;
+    margin: 0em;
+    padding-top: 90px; 
+    font-size: 0.9em;
+    #dashboard-menu {
+      list-style: none;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin: 0 0 0 10px; 
+      .pointer {
+        position: absolute;
+        right: 9px;
+        top: 37%; 
+        .arrow, .arrow_border {
+          border-color: transparent @contentBgColor transparent transparent;
+          border-width: 11px;
+          border-style: solid;
+          font-size: 0;
+          left: 50%;
+          line-height: 0;
+          margin: 0 auto;
+          position: absolute;
+          top: 0;
+          width: 0;
+          z-index: 1002;
+          left: 0;
+          margin-left: 45%; 
+        }
+        .arrow_border {
+          border-color: transparent @contentBorderColor transparent transparent;
+          border-width: 11px;
+          margin-left: -1px;
+          border-style: solid;
+          z-index: 1001;
+          top: 0px; 
+        }
+      }
+      
+      & > li {
+        position: relative;
+        border-bottom: 1px solid #dae1e8;
+        box-shadow: 0 2px 1px -1px #FFFFFF;
+
+        .subnav{
+          //background: #f0f0f0;
+          margin: 0;
+          padding: 0;
+          ul{
+            margin: 0px 5px;
+            li{
+              margin: 5px 0;
+              &.active a{
+              color: @navActiveColor;
+              font-weight: bold;
+              }  
+            }
+            
+          }
+        }
+
+        a{
+          color: @navColor;
+          span {
+            margin-left: 24px;
+          }
+          i {
+            font-size: 16px;
+            position: absolute;
+            left: 0;
+            height: 24px;
+            width: 24px;
+            opacity: 0.5;
+          }
+          .label{
+            background-color: lighten(@navColor,20%);
+          }
+        }
+
+        & > a {
+          display: block;
+          margin: 0px -15px 5px -15px;
+          padding: 19px 14px 15px 14px;
+          width: 84%; 
+        }
+        
+        &.active > a, a:hover {
+          color: @navActiveColor;
+          text-decoration: none; 
+          .label{
+            background-color: @navActiveColor;
+          }
+        }
+
+        &.active > a {
+          font-weight: 600;
+          text-shadow: 1px 1px 1px #fff; 
+        }
+
+        &.active i {
+          opacity: 1; 
+        }
+
+        &:hover i {
+          opacity: 1; 
+        }
+
+      }
+    }
+  }
+
+
+  .content {
+    min-width: 400px;
+    min-height: 600px;
+    margin-bottom: 100px;
+    padding-bottom: 50px;
+    position: relative;
+    background: @contentBgColor;
+    margin-left: @sideBarWidth - 3px;
+    border-left: 1px solid @contentBorderColor;
+    border-bottom: 1px solid @contentBorderColor;
+    box-shadow: -2px 3px 4px 0px darken(@contentBgColor,6%);
+    border-radius: 0px 0px 0px 8px; 
+
+    &.wide-content {
+      margin-left: 0;
+      border-radius: 0; 
+    }
+
+    .content-header{
+      .clearfix;
+      h1,h2,h3,h4,h5,h6{
+        font-weight: normal;
+      }
+      margin: 0 0 5px 0;
+      padding: 3px 20px;
+      .btn, .btn-group{
+        margin: 5px 0;
+      }
+    }
+
+    .breadcrumb {
+      background-color: darken(@contentBgColor,4%);
+      box-shadow: 0 0 1px #ffffff;
+      border-top: 1px solid darken(@contentBgColor,7%);
+      border-bottom: 1px solid darken(@contentBgColor,7%);
+      padding-left: 10px;
+      margin-bottom: 10px;
+      font-size: 0.8em;
+      .border-radius(0);
+      .active{
+        font-weight: bold;
+        color: darken(@contentBgColor,50%);
+      }
+      a{
+        color: darken(@contentBgColor,30%);
+        text-decoration: none;
+        &:hover{
+          color: darken(@contentBgColor,50%);
+        }
+      }
+
+    }
+  }
+}
+

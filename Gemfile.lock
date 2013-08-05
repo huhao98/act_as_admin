@@ -8,6 +8,12 @@ PATH
       twitter-bootstrap-rails (~> 2.1)
       will_paginate-bootstrap (~> 0.2)
 
+PATH
+  remote: ../bootstrap_rails_helper
+  specs:
+    bootstrap_rails_helper (0.0.1)
+      rails (~> 3.2.3)
+
 GEM
   remote: http://ruby.taobao.org/
   specs:
@@ -137,6 +143,7 @@ PLATFORMS
 
 DEPENDENCIES
   act_as_admin!
+  bootstrap_rails_helper!
   hash-to-ostruct
   nokogiri (>= 1.5.0)
   quiet_assets
