@@ -49,7 +49,7 @@ module ActAsAdmin::Builder
     # Yield the resource and its options with all the parents
     def resources &block
       rc = components.collect do |resource_name, component|
-        [resource_name.to_s.singularize.to_sym, component[:resource], component.slice(:title, :exclude)]
+        [resource_name.to_s.singularize.to_sym, component[:resource], component.slice(:title, :exclude, :namespace)]
       end
       last = rc.slice!(-1)
       parents = rc.inject(Hash.new){|p, v| p.merge!(v[0]=>v[1])}

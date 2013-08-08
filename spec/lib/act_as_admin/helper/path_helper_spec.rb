@@ -41,6 +41,20 @@ describe ::ActAsAdmin::Helpers::PathHelper do
       helper.should_receive(:dummies_path).with({:q=>"search"})
       helper.resources_path :q=>"search"
     end
+  end
+
+  describe "resource with namespace" do
+    let (:helper) do
+      setup_helper do
+        {:dummy => {:collection=>"dummy_collection", :resource=>dummy, :namespace=>:admin}}
+      end
+    end
+
+    specify('should append namespace to new_resource_path') do
+      helper.should_receive(:new_admin_dummy_path).with(no_args)
+      helper.new_resource_path
+    end
+
 
   end
 

@@ -70,6 +70,8 @@ module ActAsAdmin::Builder
       @paths << ResourcePath.new(resource, opts)
       return @paths.last
     end
+    
+
 
     def path_for params
       @paths.select{|path| path.match? params}.first

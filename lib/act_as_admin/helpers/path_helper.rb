@@ -60,8 +60,8 @@ module ActAsAdmin::Helpers
       @context.resources do |parents, resource_name, resource_opts|
         action = opts[:action]
         path_name = opts[:singular] == true ? resource_name.to_s.singularize : resource_name.to_s.pluralize
-
-        helper_components = ([action] + parents.keys + [path_name]).flatten.compact
+        namespace = resource_opts[:namespace]
+        helper_components = ([action] + [namespace] + parents.keys + [path_name]).flatten.compact
         args = (parents.values + [opts[:resource]]).flatten.compact
 
         if (block_given?)
